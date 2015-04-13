@@ -1,60 +1,66 @@
+#!/bin/env node
 var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-
-var routes = require('./routes/index');
-var users = require('./routes/users');
-
 var app = express();
+var bodyParser = require('body-parser');
+var utils = require('./my_modules/utils');
+var path = require('path');
+var roomList = {};
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-// uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', routes);
-app.use('/users', users);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+var mysql      = require('mysql');
+var connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : ''
 });
 
-// error handlers
+connection.connect(function(err){
+    console.log("Success");
+});
 
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
-    });
-  });
-}
+/*connection.query('SELECT ', function(err, rows, fields) {
+    if (err) throw err;
 
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
+    console.log('The solution is: ', rows[0].solution);
+});
+*/
+connection.end();
+
+var server_port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+
+var currentRooms = [];
+
+
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+    extended: true
+}));
+
+app.use( express.static( __dirname + '/public' ) );
+
+app.all('/', function(req, res, next){
+    var room = utils.getNewRoom(currentRooms);
+    res.redirect("/session/" + room);
+});
+
+/* GET users listing. */
+app.all('/session/:id([0-9]+)', function(req, res) {
+    currentRooms.push(req.params.id);
+    res.sendFile( path.resolve(__dirname + '/views/index.html') );
 });
 
 
-module.exports = app;
+
+app.use(function (req, res) {
+    res.status(404);
+    res.send("Not Found");
+});
+
+var server = app.listen( server_port, server_ip_address, function () {
+
+    var host = server.address().address;
+    var port = server.address().port;
+
+    console.log('Example app listening at http://%s:%s', host, port)
+
+});
