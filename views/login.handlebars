@@ -8,18 +8,19 @@
     <link rel="stylesheet" type="text/css" href="/stylesheets/login.css">
 </head>
 <body>
-
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-md-10 col-md-offset-1">
-				<div class="alert alert-danger alert-dismissable">
-					<button type="button" class="close" data-dismiss="alert"aria-hidden="true">
-						&times;
-					</button><h4>Incorrect username or password. {{state}}</h4>
-				</div>
-			</div>
-		</div>
-	</div>
+    {{#unless state}}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <div class="alert alert-danger alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert"aria-hidden="true">
+                            &times;
+                        </button><h4>Incorrect username or password.</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{/unless}}
 	<div class="container">
         <div id="login-wraper">
     <form class="form login-form" role="form" method="POST" action="/login">
