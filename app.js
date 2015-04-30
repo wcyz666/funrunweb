@@ -4,6 +4,10 @@ var app = express();
 var bodyParser = require('body-parser');
 var utils = require('./my_modules/utils');
 var path = require('path');
+var handlebars = require('express-handlebars').create({});
+app.engine("handlebars", handlebars.engine);
+app.set("view engine", 'handlebars');
+
 var roomList = {};
 
 var mysql      = require('mysql');
@@ -28,8 +32,6 @@ connection.end();
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 
-var currentRooms = [];
-
 
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
@@ -38,9 +40,9 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 app.use( express.static( __dirname + '/public' ) );
 
-app.all('/', function(req, res, next){
-    var room = utils.getNewRoom(currentRooms);
-    res.redirect("/session/" + room);
+app.get('/', function(req, res){
+    console.log("aaa");
+    res.render("login", {layout: null});
 });
 
 /* GET users listing. */

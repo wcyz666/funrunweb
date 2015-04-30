@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" >
+    <title>Login</title>
+
+	<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/login.css">
+    <script>
+%include js/jquery.min.js
+	%include js/bootstrap.min.js
+    %include js/backstretch.js
+    %include js/login.js
+    </script>
+    
+</head>
+<body>
+%if state == "succ":
+<script>
+	window.location.href="/"
+</script>
+%end
+%if state == "fail":
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+				<div class="alert alert-danger alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert"aria-hidden="true">
+						&times;
+					</button><h4>Incorrect username or password.</h4>
+				</div>
+			</div>
+		</div>
+	</div>
+%end
+	<div class="container">
+        <div id="login-wraper">
+    <form class="form login-form" role="form" method="POST" action="/login">
+    <legend>Sign in to <span class="blue">SNSRouter</span></legend>
+
+    <div class="body col-md-12">
+    <div class="form-group col-md-offset-1 col-md-10">
+
+    <input type="text" class="form-control input-lg" name="username" placeholder="Username">
+    </div>
+    <div class="form-group col-md-offset-1 col-md-10">
+
+    <input type="password" class="form-control input-lg" name="password" placeholder="Password">
+    </div>
+    </div>
+
+    <div class="footer col-md-12"><br>
+    <button type="submit" class="btn-lg btn btn-success">Login</button>
+    </div>
+
+    </form>
+        </div>
+
+    </div>
+
+    <footer class="white navbar-fixed-bottom">
+      Don't have an account yet? <a href="register.html" class="btn btn-black">Register</a>
+    </footer>
+
+%include footer
+</body>
+</html>
