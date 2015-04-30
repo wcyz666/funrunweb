@@ -2,25 +2,13 @@
 <html>
 <head>
     <meta charset="utf-8" >
-    <title>Login</title>
+    <title>Login To Fun Run Web</title>
 
 	<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/stylesheets/login.css">
-    <script>
-%include js/jquery.min.js
-	%include js/bootstrap.min.js
-    %include js/backstretch.js
-    %include js/login.js
-    </script>
-    
 </head>
 <body>
-%if state == "succ":
-<script>
-	window.location.href="/"
-</script>
-%end
-%if state == "fail":
+
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-10 col-md-offset-1">
@@ -32,11 +20,10 @@
 			</div>
 		</div>
 	</div>
-%end
 	<div class="container">
         <div id="login-wraper">
     <form class="form login-form" role="form" method="POST" action="/login">
-    <legend>Sign in to <span class="blue">SNSRouter</span></legend>
+    <legend>Sign in to <span class="blue">Fun Run Web</span></legend>
 
     <div class="body col-md-12">
     <div class="form-group col-md-offset-1 col-md-10">
@@ -62,6 +49,9 @@
       Don't have an account yet? <a href="register.html" class="btn btn-black">Register</a>
     </footer>
 
-%include footer
 </body>
+<script src="/javascripts/jquery.min.js"></script>
+<script src="/javascripts/bootstrap.min.js"></script>
+<script src="/javascripts/backstretch.js"></script>
+<script src="/javascripts/login.js"></script>
 </html>

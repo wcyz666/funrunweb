@@ -9,12 +9,11 @@ html {
 
 /* line 13, ../sass/typica-login.scss */
 body {
-  background: url(../bg1.png) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  background: url(../static/bg1.jpg) repeat;
+  background: url(../images/bg1.jpg) repeat;
 }
 @media (min-width: 979px) {
   /* line 13, ../sass/typica-login.scss */
