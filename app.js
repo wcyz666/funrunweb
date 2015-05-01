@@ -40,7 +40,7 @@ app.get('/', function(req, res){
     if (req.cookies.id){
         if (req.cookies.id in onlineUsers) {
             res.cookie("id", req.cookies.id, {maxAge: 1000 * 86400});
-            res.end("aaa");
+            res.render("me", {me : onlineUsers[req.cookies.id].username});
         }
         else {
             var sql = "SELECT * FROM user WHERE cookie = ?";
@@ -49,8 +49,8 @@ app.get('/', function(req, res){
             connection.query(sql, function(err, rows, fields) {
                 if (err) throw err;
                 if (rows.length > 0){
-                    res.end("aaaaa");
                     onlineUsers[req.cookies.id] = {username : rows[0].username, score: rows[0].score};
+                    res.render("me", {me : onlineUsers[req.cookies.id].username});
                 }
                 else {
                     res.cookie("id", "",{maxAge: -10000});
@@ -89,7 +89,7 @@ app.post('/login', function (req, res) {
                 sql = mysql.format(sql, inserts);
                 connection.query(sql, function(){
                     res.cookie("id", cookie, {maxAge: 1000 * 86400});
-                    res.end("aaaa");
+                    res.render("me",  {me : onlineUsers[cookie].username});
                 });
             }
             else {
@@ -130,12 +130,45 @@ app.post('/reg', function(req, res){
         connection.query(sql, function(err, rows, fields) {
             if (err) throw err;
             res.cookie("id", cookie, {maxAge: 1000 * 86400});
-            res.end("aaaabbbb");
+            res.render("me", {me : onlineUsers[cookie].username});
         });
     }
     else {
         res.redirect('/reg.html');
     }
+});
+
+app.get('/me', function(req, res) {
+    res.render("me", {me : onlineUsers[req.cookies.id].username});
+});
+
+app.get('/me/score', function(req, res) {
+    var username = onlineUsers[req.cookies.id].username,
+        sql,
+        inserts;
+    sql = "SELECT username, score FROM user ORDER BY score DESC, username ASC";
+    //console.log(sql);
+    connection.query(sql, function(err, rows, fields) {
+        if (err) throw err;
+        var i,
+            scores = [],
+            score;
+        for (i = 0; i < rows.length; i++){
+            score = {
+                username : rows[i].username,
+                score : rows[i].score,
+                rank : i + 1
+            };
+            scores.push(score);
+        }
+        console.log(req.cookies);
+        res.render("scores", {me : username, scores: scores});
+    });
+});
+
+app.get('/logout', function(req, res) {
+    res.cookie("id", "", {maxAge: -1000});
+    res.render("login", {state : true});
 });
 
 /* GET users listing. */
@@ -148,6 +181,7 @@ app.use(function (req, res) {
     res.status(404);
     res.send("Not Found");
 });
+
 
 var server = app.listen( server_port, server_ip_address, function () {
 
