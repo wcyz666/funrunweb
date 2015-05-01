@@ -9,19 +9,6 @@ var cookieParser = require('cookie-parser');
 var mysql = require('mysql');
 var md5 = require('md5');
 
-var roomList = {};
-
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '',
-    database : "FUNRUNWEB"
-});
-connection.connect();
-
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
-
 app.engine("handlebars", handlebars.engine);
 app.set("view engine", 'handlebars');
 app.use(cookieParser())
@@ -32,26 +19,47 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 app.use( express.static( __dirname + '/public' ) );
 
 
+var connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : '',
+    database : "FUNRUNWEB"
+});
 
+
+var server_port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+var roomList = {};
+var onlineUsers = {};
+
+
+connection.connect();
 app.get('/', function(req, res){
 
     var i = 0;
     if (req.cookies.id){
-        var sql = "SELECT * FROM user WHERE cookie = ?";
-        var inserts = [req.cookies.id];
-        sql = mysql.format(sql, inserts);
-        connection.query(sql, function(err, rows, fields) {
-            if (err) throw err;
-            if (rows.length > 0)
-                res.end("aaaaa");
-            else {
-                res.cookie("id", "aaaa",{maxAge: -10000});
-                res.render("login", {state: true});
-            }
-        });
+        if (req.cookies.id in onlineUsers) {
+            res.cookie("id", req.cookies.id, {maxAge: 1000 * 86400});
+            res.end("aaa");
+        }
+        else {
+            var sql = "SELECT * FROM user WHERE cookie = ?";
+            var inserts = [req.cookies.id];
+            sql = mysql.format(sql, inserts);
+            connection.query(sql, function(err, rows, fields) {
+                if (err) throw err;
+                if (rows.length > 0){
+                    res.end("aaaaa");
+                    onlineUsers[req.cookies.id] = {username : rows[0].username, score: rows[0].score};
+                }
+                else {
+                    res.cookie("id", "",{maxAge: -10000});
+                    res.render("login", {state: true});
+                }
+            });
+        }
     }
     else {
-        res.cookie("id", "aaaa",{maxAge: 1000 * 86400});
         res.render("login", {state: true});
     }
 });
@@ -65,7 +73,7 @@ app.post('/login', function (req, res) {
         cookie,
         sql = "",
         inserts = [];
-    if (req.body.username && req.body.password){
+    if (req.body.username && req.body.password) {
         pwdhash = md5(req.body.username + req.body.password);
         sql = "SELECT * FROM user WHERE password = ?";
         inserts = [pwdhash];
@@ -77,6 +85,7 @@ app.post('/login', function (req, res) {
                 cookie = md5(Math.random() + "");
                 sql = "UPDATE user SET cookie = ? WHERE password = ?";
                 inserts = [cookie, pwdhash];
+                onlineUsers[cookie] = {username : rows[0].username, score: rows[0].score};
                 sql = mysql.format(sql, inserts);
                 connection.query(sql, function(){
                     res.cookie("id", cookie, {maxAge: 1000 * 86400});
@@ -104,6 +113,29 @@ app.get('/init', function(req, res) {
     });
     
     connection.end();
+});
+
+app.post('/reg', function(req, res){
+    var pwdhash,
+        cookie,
+        sql = "",
+        inserts = [];
+    if (req.body.username && req.body.password) {
+        pwdhash = md5(req.body.username + req.body.password);
+        cookie = md5(Math.random() + "");
+        sql = "INSERT INTO user VALUES (NULL, ?, ?, ?, 0)";
+        inserts = [req.body.username, pwdhash, cookie];
+        sql = mysql.format(sql, inserts);
+        console.log(sql);
+        connection.query(sql, function(err, rows, fields) {
+            if (err) throw err;
+            res.cookie("id", cookie, {maxAge: 1000 * 86400});
+            res.end("aaaabbbb");
+        });
+    }
+    else {
+        res.redirect('/reg.html');
+    }
 });
 
 /* GET users listing. */
