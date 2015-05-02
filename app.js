@@ -30,6 +30,7 @@ var connection = mysql.createConnection({
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 var roomList = {};
+var currentRooms = [];
 var onlineUsers = {};
 
 
@@ -49,7 +50,7 @@ app.get('/', function(req, res){
             connection.query(sql, function(err, rows, fields) {
                 if (err) throw err;
                 if (rows.length > 0){
-                    onlineUsers[req.cookies.id] = {username : rows[0].username, score: rows[0].score};
+                    onlineUsers[req.cookies.id] = {username : rows[0].username, score: rows[0].score, isPlaying: false, currentRoom : -1};
                     res.render("me", {me : onlineUsers[req.cookies.id].username});
                 }
                 else {
@@ -85,7 +86,7 @@ app.post('/login', function (req, res) {
                 cookie = md5(Math.random() + "");
                 sql = "UPDATE user SET cookie = ? WHERE password = ?";
                 inserts = [cookie, pwdhash];
-                onlineUsers[cookie] = {username : rows[0].username, score: rows[0].score};
+                onlineUsers[cookie] = {username : rows[0].username, score: rows[0].score, isPlaying: false, currentRoom : -1};
                 sql = mysql.format(sql, inserts);
                 connection.query(sql, function(){
                     res.cookie("id", cookie, {maxAge: 1000 * 86400});
@@ -171,15 +172,24 @@ app.get('/logout', function(req, res) {
     res.render("login", {state : true});
 });
 
-app.post('/new', function(){
+app.get('/new', function(req, res, next){
+    res.render("me", {me : onlineUsers[req.cookies.id].username});
+});
 
+app.post('/new', function(req, res){
+    var room = utils.getNewRoom(currentRooms);
+    onlineUsers[req.cookies.id].currentRoom = room;
+    onlineUsers[req.cookies.id].isPlaying = true;
+    currentRooms.push({roomId: room, roomName : req.body.name, roomMap: req.body.map});
+    console.log(currentRooms);
+    res.redirect("/room/" + room);
 });
 
 /* GET users listing. */
-app.all('/session/:id([0-9]+)', function(req, res) {
-    currentRooms.push(req.params.id);
-    res.sendFile( path.resolve(__dirname + '/views/index.html') );
+app.all('/room/:id([0-9]+)', function(req, res) {
+    res.sendFile( path.resolve(__dirname + '/init.html') );
 });
+
 
 app.use(function (req, res) {
     res.status(404);
@@ -195,3 +205,43 @@ var server = app.listen( server_port, server_ip_address, function () {
     console.log('Example app listening at http://%s:%s', host, port)
 
 });
+var io = require( 'socket.io' )( server );
+io.on( 'connection', function( socket ) {
+    console.log( 'New user connected' );
+    socket.on('control', function (data) {
+        console.log(data);
+        if (data.action == "clearall")
+            roomList = {};
+        socket.broadcast.to(data["room"]).emit('control', data);
+    });
+
+    socket.on('add', function (data) {
+        console.log(data);
+        roomList[data.room] = data.playlist;
+        socket.broadcast.to(data["room"]).emit('add', data);
+    });
+
+    socket.on('remove', function (data) {
+        console.log(data);
+        roomList[data.room] = data.playlist;
+        socket.broadcast.to(data["room"]).emit('remove', data);
+    });
+
+    socket.on("subscribe", function(data) {
+        socket.join(data);
+        console.log(io.sockets.adapter.rooms[data].length);
+        socket.emit("suback", {"clientCount": io.sockets.adapter.rooms[data]});
+        console.log("subscribe", data);
+    });
+
+    socket.on("synclist", function(data){
+        roomList[data.room] = data.playlist;
+        socket.broadcast.to(data.room).emit("synclist", data.playlist);
+        console.log("aynclist", data);
+    });
+
+    socket.on("sync", function(data){
+        socket.emit("synclist", roomList[data.room]);
+        console.log("aync", data);
+    });
+} );
