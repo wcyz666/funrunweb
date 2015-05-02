@@ -171,6 +171,10 @@ app.get('/logout', function(req, res) {
     res.render("login", {state : true});
 });
 
+app.post('/new', function(){
+
+});
+
 /* GET users listing. */
 app.all('/session/:id([0-9]+)', function(req, res) {
     currentRooms.push(req.params.id);

@@ -23,7 +23,13 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#" id="username">{{me}}</a></li>
+                <li class="dropdown">
+                    <a id="username" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{me}} <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/me/score">ScoreBoard</a></li>
+                        <li><a href="/logout">Logout</a></li>
+                    </ul>
+                </li>
                 </li>
             </ul>
         </div><!-- /.navbar-collapse -->
@@ -36,7 +42,36 @@
 <div class="container">
     <div class="row">
         <div class="col-xs-offset-2 col-xs-8 ">
-            <a type="button" class="btn btn-primary btn-lg center-block btn-block">Open A New Room</a>
+            <button type="button" class="btn btn-primary btn-lg center-block btn-block" data-toggle="modal" data-target="#exampleModal" data-whatever="/new">Open A New Room</button>
+
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="exampleModalLabel">New Room</h4>
+                        </div>
+                        <form id="new-room" action="POST" action="/new">
+                            <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="control-label">Room Name:</label>
+                                        <input type="text" required="required" class="form-control" id="room-name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="message-text" class="control-label">Map:</label>
+                                        <select class="form-control" id="map">
+                                            <option>Forest</option>
+                                        </select>
+                                    </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="reset" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <br /><br /><br />
         </div>
     </div>
@@ -74,6 +109,7 @@
 </body>
 <script src="/javascripts/jquery.min.js"></script>
 <script src="/javascripts/bootstrap.min.js"></script>
+<script src="/javascripts/me.js"></script>
 </html>
 
 
