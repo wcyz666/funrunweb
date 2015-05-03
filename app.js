@@ -185,14 +185,29 @@ app.post('/new', function(req, res){
     var room = utils.getNewRoom(currentRooms);
     onlineUsers[req.cookies.id].currentRoom = room;
     onlineUsers[req.cookies.id].isPlaying = true;
-    currentRooms.push({roomId: room, roomName : req.body.name, roomMap: req.body.map});
+    currentRooms[room] = { roomName : req.body.name, roomMap: req.body.map, players: [onlineUsers[req.cookies.id].username]};
     console.log(currentRooms);
     res.redirect("/room/" + room);
 });
 
 /* GET users listing. */
 app.all('/room/:id([0-9]+)', function(req, res) {
-    res.render("game", );
+    var player;
+    if (!onlineUsers[req.cookies.id]){
+        res.redirect("/");
+        return;
+    }
+    if (!currentRooms[req.params.id]) {
+        res.render("me", onlineUsers[req.cookies.id].username);
+        return;
+    }
+    players = currentRooms[req.params.id].players.slice();
+    if (players.indexOf(onlineUsers[req.cookies.id].username) == -1){
+        currentRooms[req.params.id].players.push(onlineUsers[req.cookies.id].username);
+    }
+    else
+        players.splice(players.indexOf(onlineUsers[req.cookies.id].username), 1);
+    res.render("game", {roomInfo: currentRooms[req.params.id], players: players, me: onlineUsers[req.cookies.id]});
 });
 
 

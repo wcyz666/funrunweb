@@ -26,7 +26,13 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#" id="username">{{me}}</a></li>
+                <li class="dropdown">
+                    <a id="username" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{me.username}} <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/me/score">ScoreBoard</a></li>
+                        <li><a href="/logout">Logout</a></li>
+                    </ul>
+                </li>
                 </li>
             </ul>
         </div><!-- /.navbar-collapse -->
@@ -39,7 +45,7 @@
 <div class="container">
     <ol class="breadcrumb">
         <li><a href="/me">Home</a></li>
-        <li><a href="#">{{roomName}}</a></li>
+        <li><a href="#">{{roomInfo.roomName}}</a></li>
     </ol>
     <div class="row">
         <div class="col-xs-9">
@@ -52,14 +58,16 @@
                     <div class="panel-body">
                         <ul class="nav nav-pills nav-stacked">
                             <li role="presentation" class="active">
-                                <h3><span class="label label-primary">wcyz666</span></h3>
+                                <h3><span class="label label-primary">{{me.username}} <span class="glyphicon glyphicon-user" aria-hidden="true"></span></span></h3>
                             </li>
+                            {{#each players}}
                             <li role="presentation" class="active">
-                                <h3><span class="label label-default pull-left">cyzjl</span></h3>
-                                <button class="btn btn-success disabled pull-right btn-sm" type="button">
+                                <h3><span class="label label-default pull-left">{{.}}</span></h3>
+                                <button class="btn btn-success pull-right btn-sm" type="button">
                                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Friend
                                 </button>
                             </li>
+                                {{/each}}
                         </ul>
                     </div>
                 </div>
