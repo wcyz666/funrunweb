@@ -29,8 +29,7 @@ var connection = mysql.createConnection({
 
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
-var roomList = {};
-var currentRooms = [];
+var currentRooms = {};
 var onlineUsers = {};
 
 
@@ -112,7 +111,9 @@ app.get('/init', function(req, res) {
     'password CHAR(40) NOT NULL, cookie CHAR(40), score INTEGER)', function(err, rows, fields) {
         if (err) throw err;
     });
-    
+    connection.query('CREATE TABLE friend (id INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,friend1 INTEGER NOT NULL, friend2 INTEGER NOT NULL)', function(err, rows, fields) {
+        if (err) throw err;
+    });
     connection.end();
 });
 
@@ -140,6 +141,8 @@ app.post('/reg', function(req, res){
 });
 
 app.get('/me', function(req, res) {
+    if (!onlineUsers[req.cookies.id])
+        res.redirect("/");
     res.render("me", {me : onlineUsers[req.cookies.id].username});
 });
 
@@ -173,6 +176,8 @@ app.get('/logout', function(req, res) {
 });
 
 app.get('/new', function(req, res, next){
+    if (!onlineUsers[req.cookies.id])
+        res.redirect("/");
     res.render("me", {me : onlineUsers[req.cookies.id].username});
 });
 
@@ -187,7 +192,7 @@ app.post('/new', function(req, res){
 
 /* GET users listing. */
 app.all('/room/:id([0-9]+)', function(req, res) {
-    res.sendFile( path.resolve(__dirname + '/init.html') );
+    res.render("game", );
 });
 
 
