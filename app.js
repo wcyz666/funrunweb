@@ -210,7 +210,7 @@ var server = app.listen( server_port, server_ip_address, function () {
     console.log('Example app listening at http://%s:%s', host, port)
 
 });
-var io = require( 'socket.io' )( server );
+var io = requir( 'socket.io' )( server );
 io.on( 'connection', function( socket ) {
     console.log( 'New user connected' );
     socket.on('control', function (data) {
