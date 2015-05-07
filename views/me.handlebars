@@ -88,7 +88,35 @@
     </div>
     <div class="row">
         <div class="col-xs-offset-2 col-xs-8 ">
-            <a type="button" class="btn btn-info btn-lg center-block btn-block">Join A Room</a>
+            <button type="button" id="joinRoom" class="btn btn-info btn-lg center-block btn-block" data-toggle="modal" data-target="#exampleModal1" data-whatever="/new">Join A Room</button>
+            <div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="roomNums"></h4>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-10 col-xs-offset-1">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Room #</th>
+                                        <th>Room Name</th>
+                                        <th>Room Map</th>
+                                        <th>Enter</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="table-body">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <br /><br /><br />
         </div>
     </div>

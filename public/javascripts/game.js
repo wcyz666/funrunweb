@@ -3,10 +3,13 @@
  */
 var myLib = (function(){
 
-    var qrid = "qrcode";
-    var curURL = window.location.href;
+    var qrid = "qrcode",
+        curURL = window.location.href,
+        roomNum = /^.*\/(.*)$/.exec(window.location.href)[1];
+
 
     return {
+        roomNum: roomNum,
         el : function(id, rg){
             var range = rg || document;
             return range.getElementById(id);
@@ -104,18 +107,29 @@ var myLib = (function(){
         },
         createQRcode : function(){
             myLib.el(qrid).src = "https://chart.googleapis.com/chart?cht=qr&chs=500x500&chl=" + encodeURIComponent(curURL);
+        },
+        getCurrentUsers : function(){
+
         }
     };
 })();
 
-(function (){
+var socket;
+window.onload = function(){
 
-    
+    (function (){
 
+        socket = io();
+        socket.on("comeIn", function(newUser){
+            console.log(newUser);
+        });
 
-    return {
-        init : function () {
-            myLib.createQRcode();
-        }
-    };
-})().init();
+        socket.emit("join", myLib.roomNum);
+        return {
+            init : function () {
+                myLib.createQRcode();
+                myLib.el('exit').setAttribute("href", "/room/exit/" + myLib.roomNum);
+            }
+        };
+    })().init();
+}

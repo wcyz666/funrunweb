@@ -1,17 +1,18 @@
 #!/bin/env node
 var express = require('express');
-var app = express();
 var bodyParser = require('body-parser');
 var utils = require('./my_modules/utils');
-var path = require('path');
 var handlebars = require('express-handlebars').create({});
 var cookieParser = require('cookie-parser');
 var mysql = require('mysql');
 var md5 = require('md5');
+var socketIO = require('socket.io');
 
+var app = express();
+var io;
 app.engine("handlebars", handlebars.engine);
 app.set("view engine", 'handlebars');
-app.use(cookieParser())
+app.use(cookieParser());
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
@@ -32,15 +33,18 @@ var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 var currentRooms = {};
 var onlineUsers = {};
 
-
 connection.connect();
+
+
 app.get('/', function(req, res){
 
     var i = 0;
     if (req.cookies.id){
         if (req.cookies.id in onlineUsers) {
             res.cookie("id", req.cookies.id, {maxAge: 1000 * 86400});
-            res.render("me", {me : onlineUsers[req.cookies.id].username});
+            res.render("me", {
+                me : onlineUsers[req.cookies.id].username
+            });
         }
         else {
             var sql = "SELECT * FROM user WHERE cookie = ?";
@@ -49,8 +53,15 @@ app.get('/', function(req, res){
             connection.query(sql, function(err, rows, fields) {
                 if (err) throw err;
                 if (rows.length > 0){
-                    onlineUsers[req.cookies.id] = {username : rows[0].username, score: rows[0].score, isPlaying: false, currentRoom : -1};
-                    res.render("me", {me : onlineUsers[req.cookies.id].username});
+                    onlineUsers[req.cookies.id] = {
+                        username : rows[0].username,
+                        score: rows[0].score,
+                        isPlaying: false,
+                        currentRoom : -1
+                    };
+                    res.render("me", {
+                        me : onlineUsers[req.cookies.id].username
+                    });
                 }
                 else {
                     res.cookie("id", "",{maxAge: -10000});
@@ -85,11 +96,18 @@ app.post('/login', function (req, res) {
                 cookie = md5(Math.random() + "");
                 sql = "UPDATE user SET cookie = ? WHERE password = ?";
                 inserts = [cookie, pwdhash];
-                onlineUsers[cookie] = {username : rows[0].username, score: rows[0].score, isPlaying: false, currentRoom : -1};
+                onlineUsers[cookie] = {
+                    username : rows[0].username,
+                    score: rows[0].score,
+                    isPlaying: false,
+                    currentRoom : -1
+                };
                 sql = mysql.format(sql, inserts);
                 connection.query(sql, function(){
                     res.cookie("id", cookie, {maxAge: 1000 * 86400});
-                    res.render("me",  {me : onlineUsers[cookie].username});
+                    res.render("me",  {
+                        me : onlineUsers[cookie].username
+                    });
                 });
             }
             else {
@@ -141,6 +159,7 @@ app.post('/reg', function(req, res){
 });
 
 app.get('/me', function(req, res) {
+    console.log(onlineUsers);
     if (!onlineUsers[req.cookies.id])
         res.redirect("/");
     res.render("me", {me : onlineUsers[req.cookies.id].username});
@@ -185,14 +204,20 @@ app.post('/new', function(req, res){
     var room = utils.getNewRoom(currentRooms);
     onlineUsers[req.cookies.id].currentRoom = room;
     onlineUsers[req.cookies.id].isPlaying = true;
-    currentRooms[room] = { roomName : req.body.name, roomMap: req.body.map, players: [onlineUsers[req.cookies.id].username]};
+    currentRooms[room] = {
+        roomName : req.body.name,
+        roomMap: req.body.map,
+        players:
+            [onlineUsers[req.cookies.id].username]
+    };
     console.log(currentRooms);
     res.redirect("/room/" + room);
 });
 
 /* GET users listing. */
 app.all('/room/:id([0-9]+)', function(req, res) {
-    var player;
+    console.log(onlineUsers);
+    console.log(currentRooms);
     if (!onlineUsers[req.cookies.id]){
         res.redirect("/");
         return;
@@ -201,13 +226,42 @@ app.all('/room/:id([0-9]+)', function(req, res) {
         res.render("me", onlineUsers[req.cookies.id].username);
         return;
     }
+    if (!onlineUsers[req.cookies.id].isPlaying)
+        onlineUsers[req.cookies.id].isPlaying;
+    else
+        if (onlineUsers[req.cookies.id].currentRoom != req.params.id) {
+            res.redirect("/room/" + onlineUsers[req.cookies.id].currentRoom);
+            return;
+        }
     players = currentRooms[req.params.id].players.slice();
+
     if (players.indexOf(onlineUsers[req.cookies.id].username) == -1){
         currentRooms[req.params.id].players.push(onlineUsers[req.cookies.id].username);
     }
     else
         players.splice(players.indexOf(onlineUsers[req.cookies.id].username), 1);
-    res.render("game", {roomInfo: currentRooms[req.params.id], players: players, me: onlineUsers[req.cookies.id]});
+    res.render("game", {
+        roomInfo: currentRooms[req.params.id],
+        players: players,
+        me:
+            onlineUsers[req.cookies.id]
+    });
+});
+
+app.get('/room/exit/:id([0-9]+)', function(req, res){
+    var room = req.params.id;
+    onlineUsers[req.cookies.id].currentRoom = room;
+    onlineUsers[req.cookies.id].isPlaying = true;
+});
+
+/* GET users listing. */
+app.all('/api/allrooms', function(req, res) {
+    if (!onlineUsers[req.cookies.id]){
+        res.redirect("/");
+        return;
+    }
+    console.log(currentRooms);
+    res.json(currentRooms);
 });
 
 
@@ -218,14 +272,14 @@ app.use(function (req, res) {
 
 
 var server = app.listen( server_port, server_ip_address, function () {
-
     var host = server.address().address;
     var port = server.address().port;
 
     console.log('Example app listening at http://%s:%s', host, port)
 
 });
-var io = requir( 'socket.io' )( server );
+
+io = socketIO(server);
 io.on( 'connection', function( socket ) {
     console.log( 'New user connected' );
     socket.on('control', function (data) {
@@ -247,11 +301,10 @@ io.on( 'connection', function( socket ) {
         socket.broadcast.to(data["room"]).emit('remove', data);
     });
 
-    socket.on("subscribe", function(data) {
+    socket.on("join", function(data) {
         socket.join(data);
-        console.log(io.sockets.adapter.rooms[data].length);
         socket.emit("suback", {"clientCount": io.sockets.adapter.rooms[data]});
-        console.log("subscribe", data);
+        console.log("join", data);
     });
 
     socket.on("synclist", function(data){
@@ -260,8 +313,4 @@ io.on( 'connection', function( socket ) {
         console.log("aynclist", data);
     });
 
-    socket.on("sync", function(data){
-        socket.emit("synclist", roomList[data.room]);
-        console.log("aync", data);
-    });
 } );
