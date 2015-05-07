@@ -214,6 +214,19 @@ app.post('/new', function(req, res){
     res.redirect("/room/" + room);
 });
 
+app.get('/pick', function(req, res){
+    var key,
+        roomRandom = Math.floor(Math.random() * 3),
+        roomList = [];
+    for (key in currentRooms)
+        roomList.push(key);
+    roomRandom = roomList[roomRandom];
+    onlineUsers[req.cookies.id].currentRoom = roomRandom;
+    onlineUsers[req.cookies.id].isPlaying = true;
+    currentRooms[roomRandom].players.push(onlineUsers[req.cookies.id].username);
+    res.redirect("/room/" + roomRandom);
+});
+
 /* GET users listing. */
 app.all('/room/:id([0-9]+)', function(req, res) {
     console.log(onlineUsers);
