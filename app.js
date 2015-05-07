@@ -252,10 +252,11 @@ app.get('/room/exit/:id([0-9]+)', function(req, res){
     var room = req.params.id;
     onlineUsers[req.cookies.id].currentRoom = -1;
     onlineUsers[req.cookies.id].isPlaying = false;
-    currentRooms[room].players.splice(players.indexOf(onlineUsers[req.cookies.id].username), 1);
+    currentRooms[room].players.splice( currentRooms[room].players.indexOf(onlineUsers[req.cookies.id].username), 1);
     if (currentRooms[room].players.length == 0)
         delete currentRooms[room];
-    res.render("me", {me : onlineUsers[req.cookies.id].username});
+    console.log(currentRooms);
+    res.redirect("/me");
 });
 
 /* GET users listing. */
