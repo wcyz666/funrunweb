@@ -336,6 +336,12 @@ io.on( 'connection', function( socket ) {
         console.log("join", data);
     });
 
+    socket.on("exit", function(data) {
+        socket.join(data.room);
+        socket.broadcast.to(data.room).emit("exitClient", data.username);
+        console.log("exit", data);
+    });
+
     socket.on("synclist", function(data){
         roomList[data.room] = data.playlist;
         socket.broadcast.to(data.room).emit("synclist", data.playlist);

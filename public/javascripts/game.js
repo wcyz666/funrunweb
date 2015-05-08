@@ -67,25 +67,52 @@ window.onload = function(){
             createNewUser: function(user){
                 var html = "";
                 html += '<li role="presentation" class="active">';
-                html += '<h3><span class="label label-default pull-left">' + user + '</span></h3>';
+                html += '<h3><span class="label label-default pull-left player-name">' + user + '</span>';
                 html += '<button class="btn btn-success pull-right btn-sm" type="button">';
-                html += '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Friend </button></li>';
+                html += '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Friend </button></h3></li>';
                 return $(html);
             }
         };
     })();
 
+    var msg = Messenger();
+
+
     (function (){
 
         socket = io();
         socket.on("newClient", function(newUser){
+            if ($(".player-name").text().indexOf(newUser) != -1 || newUser == myLib.username) return;
+
             $("#players").append(myLib.createNewUser(newUser));
+            msg.post({
+                message: "User " + newUser + " comes in !",
+                hideAfter: 10,
+                hideOnNavigate: true
+            });
+        });
+
+        socket.on("exitClient", function(newUser){
+            $("li:contains(" + newUser.trim() + ")").remove();
+            msg.post({
+                message: "User " + newUser + " exit !",
+                hideAfter: 10,
+                hideOnNavigate: true
+            });
         });
 
         socket.emit("join", {
             room: myLib.roomNum,
             username: myLib.username
         });
+        $('#exit').on('click', function(event){
+            socket.emit('exit', {
+                room: myLib.roomNum,
+                username: myLib.username
+            });
+            return true;
+        });
+
         return {
             init : function () {
                 myLib.createQRcode();

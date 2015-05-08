@@ -27,7 +27,7 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
-                    <a id="username" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{me.username}} <span class="caret"></span></a>
+                    <a id="username" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{me.username}}<span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="/me/score">ScoreBoard</a></li>
                         <li><a href="/logout">Logout</a></li>
@@ -67,10 +67,11 @@
                             </li>
                             {{#each players}}
                             <li role="presentation" class="active">
-                                <h3><span class="label label-default pull-left">{{.}}</span></h3>
+                                <h3><span class="label label-default player-name">{{.}}</span>
                                 <button class="btn btn-success pull-right btn-sm" type="button">
                                     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Friend
                                 </button>
+                                </h3>
                             </li>
                                 {{/each}}
                         </ul>
