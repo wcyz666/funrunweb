@@ -214,18 +214,35 @@ app.post('/new', function(req, res){
     res.redirect("/room/" + room);
 });
 
+app.get('/api/roomCount', function(req, res){
+    var key,
+        count = 0;
+
+    for (key in currentRooms)
+        ++count;
+
+    res.json({roomCount : count});
+});
+
 app.get('/pick', function(req, res){
     var key,
-        roomRandom = Math.floor(Math.random() * 3),
-        roomList = [];
-    for (key in currentRooms)
+        roomList = [],
+        roomRandom = 0;
+        count = 0;
+    for (key in currentRooms){
         roomList.push(key);
+        count++;
+    }
+    roomRandom = Math.floor(Math.random() * count);
+
     roomRandom = roomList[roomRandom];
     onlineUsers[req.cookies.id].currentRoom = roomRandom;
     onlineUsers[req.cookies.id].isPlaying = true;
     currentRooms[roomRandom].players.push(onlineUsers[req.cookies.id].username);
     res.redirect("/room/" + roomRandom);
 });
+
+
 
 /* GET users listing. */
 app.all('/room/:id([0-9]+)', function(req, res) {
@@ -300,12 +317,6 @@ var server = app.listen( server_port, server_ip_address, function () {
 io = socketIO(server);
 io.on( 'connection', function( socket ) {
     console.log( 'New user connected' );
-    socket.on('control', function (data) {
-        console.log(data);
-        if (data.action == "clearall")
-            roomList = {};
-        socket.broadcast.to(data["room"]).emit('control', data);
-    });
 
     socket.on('add', function (data) {
         console.log(data);
@@ -320,8 +331,8 @@ io.on( 'connection', function( socket ) {
     });
 
     socket.on("join", function(data) {
-        socket.join(data);
-        socket.emit("suback", {"clientCount": io.sockets.adapter.rooms[data]});
+        socket.join(data.room);
+        socket.broadcast.to(data.room).emit("newClient", data.username);
         console.log("join", data);
     });
 

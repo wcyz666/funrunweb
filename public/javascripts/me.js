@@ -81,4 +81,14 @@
             myLib.el("table-body").innerHTML = tableBody;
         });
     });
+
+    $('#pickRoom').on('click', function(event){
+        event.preventDefault();
+        $.get('/api/roomCount', function(data){
+            if (data.roomCount == 0)
+                alert("No rooms available");
+            else
+                window.location.href = "/pick";
+        });
+    });
 })();
