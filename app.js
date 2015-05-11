@@ -289,6 +289,10 @@ app.all('/room/:id([0-9]+)', function(req, res) {
 });
 
 app.get('/room/exit/:id([0-9]+)', function(req, res){
+    if (!onlineUsers[req.cookies.id]){
+        res.redirect("/");
+        return;
+    }
     var room = req.params.id;
     onlineUsers[req.cookies.id].currentRoom = -1;
     onlineUsers[req.cookies.id].isPlaying = false;

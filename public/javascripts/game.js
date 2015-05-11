@@ -110,12 +110,27 @@ window.onload = function(){
         });
 
         socket.on("start", function(newUser){
+            var counter = $('#seconds'),
+                timer;
+
             msg.post({
                 message: "Game Start!",
                 hideAfter: 10,
                 hideOnNavigate: true
             });
             $("#readyButton").button('reset');
+            $('#myModal').modal("show");
+            (function countDown() {
+                var result = parseInt(counter.text());
+                if (result == 0) {
+                    $('#myModal').modal("hide");
+                }
+                else {
+                    result--;
+                    counter.text(result);
+                    setTimeout(countDown, 1000);
+                }
+            })();
         });
 
         $("#readyButton").on('click', function () {
