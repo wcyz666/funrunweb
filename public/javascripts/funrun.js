@@ -1,147 +1,472 @@
 /**
  * Created by lenovo on 2015/5/8.
  */
+(function(){
 
-var game = new Phaser.Game(800, 500, Phaser.AUTO, 'gameScreen', { preload: preload, create: create, update: update });
+    var game = new Phaser.Game(800, 500, Phaser.CANVAS, 'gameScreen');
 
-function preload() {
+    var PhaserGame = function () {
 
-    game.load.image('sky', '/assets/sky.png');
-    game.load.image('ground', '/assets/platform.png');
-    game.load.image('star', '/assets/star.png');
-    game.load.spritesheet('dude', '/assets/dude.png', 32, 48);
+        this.bg = null;
+        this.trees = null;
 
-}
+        this.player = null;
 
-var player;
-var platforms;
-var cursors;
 
-var stars;
-var score = 0;
-var scoreText;
+        this.stationary = null;
+        this.clouds = null;
 
-function create() {
+        this.facing = 'left';
+        this.jumpTimer = 0;
+        this.cursors;
+        this.locked = false;
+        this.lockedTo = null;
+        this.wasLocked = false;
+        this.willJump = false;
+        //======================
+        this.player2 = null;
+        this.facing2 = 'left';
+        this.jumpTimer2 = 0;
+        this.signals= {};
+        this.locked2 = false;
+        this.lockedTo2 = null;
+        this.wasLocked2 = false;
+        this.willJump2 = false;
+        //======================
+    };
 
-    //  We're going to be using physics, so enable the Arcade Physics system
-    game.physics.startSystem(Phaser.Physics.ARCADE);
+    PhaserGame.prototype = {
 
-    //  A simple background for our game
-    game.add.sprite(0, 0, 'sky');
+        init: function () {
 
-    //  The platforms group contains the ground and the 2 ledges we can jump on
-    platforms = game.add.group();
+            this.game.renderer.renderSession.roundPixels = true;
+            console.log(this.world);
+            this.world.resize(640*5, 480);
 
-    //  We will enable physics for any object that is created in this group
-    platforms.enableBody = true;
+            this.physics.startSystem(Phaser.Physics.ARCADE);
 
-    // Here we create the ground.
-    var ground = platforms.create(0, game.world.height - 64, 'ground');
+            this.physics.arcade.gravity.y = 600;
 
-    //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    ground.scale.setTo(2, 2);
+        },
 
-    //  This stops it from falling away when you jump on it
-    ground.body.immovable = true;
+        preload: function () {
 
-    //  Now let's create two ledges
-    var ledge = platforms.create(400, 400, 'ground');
-    ledge.body.immovable = true;
+            //  We need this because the assets are on Amazon S3
+            //  Remove the next 2 lines if running locally
+            // this.load.baseURL = 'http://files.phaser.io.s3.amazonaws.com/codingtips/issue004/';
+            this.load.crossOrigin = 'anonymous';
 
-    ledge = platforms.create(-150, 250, 'ground');
-    ledge.body.immovable = true;
+            this.load.image('trees', '/assets/trees-h.png');
+            this.load.image('background', '/assets/clouds-h.png');
+            this.load.image('platform', '/assets/platform.png');
+            this.load.image('cloud-platform', '/assets/cloud-platform.png');
+            this.load.spritesheet('dude', '/assets/dude.png', 32, 48);
+            //=========================================================
+            this.load.spritesheet('guy', '/assets/guy.png', 32, 48);
+            //=========================================================
+            //  Note: Graphics are Copyright 2015 Photon Storm Ltd.
 
-    // The player and its settings
-    player = game.add.sprite(32, game.world.height - 150, 'dude');
+        },
 
-    //  We need to enable physics on the player
-    game.physics.arcade.enable(player);
+        create: function () {
 
-    //  Player physics properties. Give the little guy a slight bounce.
-    player.body.bounce.y = 0.2;
-    player.body.gravity.y = 300;
-    player.body.collideWorldBounds = true;
+            this.background = this.add.tileSprite(0, 0, 640, 480, 'background');
+            this.background.fixedToCamera = true;
 
-    //  Our two animations, walking left and right.
-    player.animations.add('left', [0, 1, 2, 3], 10, true);
-    player.animations.add('right', [5, 6, 7, 8], 10, true);
+            this.trees = this.add.tileSprite(0, 364, 640, 116, 'trees');
+            this.trees.fixedToCamera = true;
 
-    //  Finally some stars to collect
-    stars = game.add.group();
+            //  Platforms that don't move
+            this.stationary = this.add.physicsGroup();
 
-    //  We will enable physics for any star that is created in this group
-    stars.enableBody = true;
+            this.stationary.create(0, 96, 'platform');
+            this.stationary.create(632, 220, 'platform');
+            this.stationary.create(1100, 300, 'platform');
 
-    //  Here we'll create 12 of them evenly spaced apart
-    for (var i = 0; i < 12; i++)
-    {
-        //  Create a star inside of the 'stars' group
-        var star = stars.create(i * 70, 0, 'star');
+            this.stationary.setAll('body.allowGravity', false);
+            this.stationary.setAll('body.immovable', true);
 
-        //  Let gravity do its thing
-        star.body.gravity.y = 300;
+            //  Platforms that move
+            this.clouds = this.add.physicsGroup();
 
-        //  This just gives each star a slightly random bounce value
-        star.body.bounce.y = 0.7 + Math.random() * 0.2;
-    }
+            var cloud1 = new CloudPlatform(this.game, 300, 450, 'cloud-platform', this.clouds);
 
-    //  The score
-    scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+            cloud1.addMotionPath([
+                { x: "+200", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeIn" },
+                { x: "-200", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeOut" },
+                { x: "-200", xSpeed: 2000, xEase: "Linear", y: "+200", ySpeed: 2000, yEase: "Sine.easeIn" },
+                { x: "+200", xSpeed: 2000, xEase: "Linear", y: "+200", ySpeed: 2000, yEase: "Sine.easeOut" }
+            ]);
 
-    //  Our controls.
-    cursors = game.input.keyboard.createCursorKeys();
+            var cloud2 = new CloudPlatform(this.game, 800, 96, 'cloud-platform', this.clouds);
 
-}
+            cloud2.addMotionPath([
+                { x: "+0", xSpeed: 2000, xEase: "Linear", y: "+300", ySpeed: 2000, yEase: "Sine.easeIn" },
+                { x: "-0", xSpeed: 2000, xEase: "Linear", y: "-300", ySpeed: 2000, yEase: "Sine.easeOut" }
+            ]);
 
-function update() {
+            var cloud3 = new CloudPlatform(this.game, 1300, 290, 'cloud-platform', this.clouds);
 
-    //  Collide the player and the stars with the platforms
-    game.physics.arcade.collide(player, platforms);
-    game.physics.arcade.collide(stars, platforms);
+            cloud3.addMotionPath([
+                { x: "+500", xSpeed: 4000, xEase: "Expo.easeIn", y: "-200", ySpeed: 3000, yEase: "Linear" },
+                { x: "-500", xSpeed: 4000, xEase: "Expo.easeOut", y: "+200", ySpeed: 3000, yEase: "Linear" }
+            ]);
 
-    //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
-    game.physics.arcade.overlap(player, stars, collectStar, null, this);
+            //  The Player
+            this.player = this.add.sprite(32, 0, 'dude');
 
-    //  Reset the players velocity (movement)
-    player.body.velocity.x = 0;
+            this.physics.arcade.enable(this.player);
 
-    if (cursors.left.isDown)
-    {
-        //  Move to the left
-        player.body.velocity.x = -150;
+            this.player.body.collideWorldBounds = true;
+            this.player.body.setSize(20, 32, 5, 16);
 
-        player.animations.play('left');
-    }
-    else if (cursors.right.isDown)
-    {
-        //  Move to the right
-        player.body.velocity.x = 150;
+            this.player.animations.add('left', [0, 1, 2, 3], 10, true);
+            this.player.animations.add('turn', [4], 20, true);
+            this.player.animations.add('right', [5, 6, 7, 8], 10, true);
 
-        player.animations.play('right');
-    }
-    else
-    {
-        //  Stand still
-        player.animations.stop();
+            this.camera.follow(this.player);
+            //==========================================================
+            this.player2 = this.add.sprite(32, 0, 'guy');
 
-        player.frame = 4;
-    }
+            this.physics.arcade.enable(this.player2);
 
-    //  Allow the player to jump if they are touching the ground.
-    if (cursors.up.isDown && player.body.touching.down)
-    {
-        player.body.velocity.y = -350;
-    }
+            this.player2.body.collideWorldBounds = true;
+            this.player2.body.setSize(20, 32, 5, 16);
 
-}
+            this.player2.animations.add('left', [4,5,6,7], 16, true);
+            //this.player2.animations.add('turn', [0], 32, true);
+            this.player2.animations.add('right', [8,9,10,11], 10, true);
+            //=========================================================
+            this.cursors = this.input.keyboard.createCursorKeys();
+            this.signals.wkey = this.input.keyboard.addKey(Phaser.Keyboard.W);
+            this.signals.dkey = this.input.keyboard.addKey(Phaser.Keyboard.D);
+            this.signals.akey = this.input.keyboard.addKey(Phaser.Keyboard.A);
+            this.clouds.callAll('start');
 
-function collectStar (player, star) {
+        },
 
-    // Removes the star from the screen
-    star.kill();
+        customSep: function (player, platform) {
 
-    //  Add and update the score
-    score += 10;
-    scoreText.text = 'Score: ' + score;
+            if (!this.locked && player.body.velocity.y > 0)
+            {
+                this.locked = true;
+                this.lockedTo = platform;
+                platform.playerLocked = true;
 
-}
+                player.body.velocity.y = 0;
+            }
+            //===============================================
+
+
+        },
+
+        checkLock: function () {
+
+            this.player.body.velocity.y = 0;
+            //================================================
+
+
+            //  If the player has walked off either side of the platform then they're no longer locked to it
+            if (this.player.body.right < this.lockedTo.body.x || this.player.body.x > this.lockedTo.body.right)
+            {
+                this.cancelLock();
+            }
+            //====================================================
+
+        },
+
+        cancelLock: function () {
+
+            this.wasLocked = true;
+            this.locked = false;
+
+        },
+
+        preRender: function () {
+
+            if (this.game.paused)
+            {
+                //  Because preRender still runs even if your game pauses!
+                return;
+            }
+
+            if (this.locked || this.wasLocked)
+            {
+                this.player.x += this.lockedTo.deltaX;
+                this.player.y = this.lockedTo.y - 48;
+
+                if (this.player.body.velocity.x !== 0)
+                {
+                    this.player.body.velocity.y = 0;
+                }
+            }
+            //=========================================
+            if (this.locked2 || this.wasLocked2)
+            {
+                this.player2.x += this.lockedTo2.deltaX;
+                this.player2.y = this.lockedTo2.y - 48;
+
+                if (this.player2.body.velocity.x !== 0)
+                {
+                    this.player2.body.velocity.y = 0;
+                }
+            }
+            if (this.willJump2)
+            {
+                this.willJump2 = false;
+
+                if (this.lockedTo2 && this.lockedTo2.deltaY < 0 && this.wasLocked2)
+                {
+                    //  If the platform is moving up we add its velocity to the players jump
+                    this.player2.body.velocity.y = -300 + (this.lockedTo2.deltaY * 10);
+                }
+                else
+                {
+                    this.player2.body.velocity.y = -300;
+                }
+
+                this.jumpTimer2 = this.time.time + 750;
+            }
+
+            if (this.wasLocked2)
+            {
+                this.wasLocked2 = false;
+                this.lockedTo2.playerLocked = false;
+                this.lockedTo2 = null;
+            }
+            //==========================================
+            if (this.willJump)
+            {
+                this.willJump = false;
+
+                if (this.lockedTo && this.lockedTo.deltaY < 0 && this.wasLocked)
+                {
+                    //  If the platform is moving up we add its velocity to the players jump
+                    this.player.body.velocity.y = -300 + (this.lockedTo.deltaY * 10);
+                }
+                else
+                {
+                    this.player.body.velocity.y = -300;
+                }
+
+                this.jumpTimer = this.time.time + 750;
+            }
+
+            if (this.wasLocked)
+            {
+                this.wasLocked = false;
+                this.lockedTo.playerLocked = false;
+                this.lockedTo = null;
+            }
+
+        },
+
+        update: function () {
+
+            this.background.tilePosition.x = -(this.camera.x * 0.7);
+            this.trees.tilePosition.x = -(this.camera.x * 0.9);
+
+            this.physics.arcade.collide(this.player, this.stationary);
+            this.physics.arcade.collide(this.player, this.clouds, this.customSep, null, this);
+
+            //================================================================================
+            this.physics.arcade.collide(this.player2, this.stationary);
+            this.physics.arcade.collide(this.player2, this.clouds, function(player, platform){
+                if (!this.locked2 && player.body.velocity.y > 0)
+                {
+                    this.locked2 = true;
+                    this.lockedTo2 = platform;
+                    platform.playerLocked = true;
+
+                    player.body.velocity.y = 0;
+                }}, null, this);
+            //================================================================================
+            //  Do this AFTER the collide check, or we won't have blocked/touching set
+            var standing = this.player.body.blocked.down || this.player.body.touching.down || this.locked;
+
+            //================================================================================
+            var standing2 = this.player2.body.blocked.down || this.player2.body.touching.down || this.locked;
+
+            this.player.body.velocity.x = 0;
+
+            if (this.cursors.left.isDown)
+            {
+                this.player.body.velocity.x = -150;
+
+                if (this.facing !== 'left')
+                {
+                    this.player.play('left');
+                    this.facing = 'left';
+                }
+            }
+            else if (this.cursors.right.isDown)
+            {
+                this.player.body.velocity.x = 150;
+
+                if (this.facing !== 'right')
+                {
+                    this.player.play('right');
+                    this.facing = 'right';
+                }
+            }
+            else
+            {
+                if (this.facing !== 'idle')
+                {
+                    this.player.animations.stop();
+
+                    if (this.facing === 'left')
+                    {
+                        this.player.frame = 0;
+                    }
+                    else
+                    {
+                        this.player.frame = 5;
+                    }
+
+                    this.facing = 'idle';
+                }
+            }
+
+            if (standing && this.cursors.up.isDown && this.time.time > this.jumpTimer)
+            {
+                if (this.locked)
+                {
+                    this.cancelLock();
+                }
+
+                this.willJump = true;
+            }
+
+            if (this.locked)
+            {
+                this.checkLock();
+            }
+            //================================
+            this.player2.body.velocity.x = 0;
+
+            if (this.signals.akey.isDown)
+            {
+                this.player2.body.velocity.x = -150;
+
+                if (this.facing2 !== 'left')
+                {
+                    this.player2.play('left');
+                    this.facing2 = 'left';
+                }
+            }
+            else if (this.signals.dkey.isDown)
+            {
+                this.player2.body.velocity.x = 150;
+
+                if (this.facing2 !== 'right')
+                {
+                    this.player2.play('right');
+                    this.facing2 = 'right';
+                }
+            }
+            else
+            {
+                if (this.facing2 !== 'idle')
+                {
+                    this.player2.animations.stop();
+
+                    if (this.facing2 === 'left')
+                    {
+                        this.player2.frame = 4;
+                    }
+                    else
+                    {
+                        this.player2.frame = 8;
+                    }
+
+                    this.facing2 = 'idle';
+                }
+            }
+
+            if (standing2 && this.signals.wkey.isDown && this.time.time > this.jumpTimer2)
+            {
+                if (this.locked2)
+                {
+                    this.wasLocked2 = true;
+                    this.locked2  = false;
+                }
+
+                this.willJump2 = true;
+            }
+
+            if (this.locked2)
+            {
+                this.player2.body.velocity.y = 0;
+                if (this.player2.body.right < this.lockedTo2.body.x || this.player2.body.x > this.lockedTo2.body.right)
+                {
+                    this.wasLocked2 = true;
+                    this.locked2 = false;
+                }
+            }
+            //======================================================
+        }
+
+    };
+
+    CloudPlatform = function (game, x, y, key, group) {
+
+        if (typeof group === 'undefined') { group = game.world; }
+
+        Phaser.Sprite.call(this, game, x, y, key);
+
+        game.physics.arcade.enable(this);
+
+        this.anchor.x = 0.5;
+
+        this.body.customSeparateX = true;
+        this.body.customSeparateY = true;
+        this.body.allowGravity = false;
+        this.body.immovable = true;
+
+        this.playerLocked = false;
+
+        group.add(this);
+
+    };
+
+    CloudPlatform.prototype = Object.create(Phaser.Sprite.prototype);
+    CloudPlatform.prototype.constructor = CloudPlatform;
+
+    CloudPlatform.prototype.addMotionPath = function (motionPath) {
+
+        this.tweenX = this.game.add.tween(this.body);
+        this.tweenY = this.game.add.tween(this.body);
+
+        //  motionPath is an array containing objects with this structure
+        //  [
+        //   { x: "+200", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeIn" }
+        //  ]
+
+        for (var i = 0; i < motionPath.length; i++)
+        {
+            this.tweenX.to( { x: motionPath[i].x }, motionPath[i].xSpeed, motionPath[i].xEase);
+            this.tweenY.to( { y: motionPath[i].y }, motionPath[i].ySpeed, motionPath[i].yEase);
+        }
+
+        this.tweenX.loop();
+        this.tweenY.loop();
+
+    };
+
+    CloudPlatform.prototype.start = function () {
+
+        this.tweenX.start();
+        this.tweenY.start();
+
+    };
+
+    CloudPlatform.prototype.stop = function () {
+
+        this.tweenX.stop();
+        this.tweenY.stop();
+
+    };
+
+    game.state.add('Game', PhaserGame, true);
+})();

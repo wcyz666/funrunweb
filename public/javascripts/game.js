@@ -101,10 +101,41 @@ window.onload = function(){
             });
         });
 
+        socket.on("newReady", function(newUser){
+            msg.post({
+                message: "User " + newUser + " is ready !",
+                hideAfter: 10,
+                hideOnNavigate: true
+            });
+        });
+
+        socket.on("start", function(newUser){
+            msg.post({
+                message: "Game Start!",
+                hideAfter: 10,
+                hideOnNavigate: true
+            });
+            $("#readyButton").button('reset');
+        });
+
+        $("#readyButton").on('click', function () {
+            var $btn = $(this).button('loading');
+            msg.post({
+                message: "You are ready !",
+                hideAfter: 10,
+                hideOnNavigate: true
+            });
+            socket.emit("ready", {
+                room: myLib.roomNum,
+                username: myLib.username
+            });
+        });
+
         socket.emit("join", {
             room: myLib.roomNum,
             username: myLib.username
         });
+
         $('#exit').on('click', function(event){
             socket.emit('exit', {
                 room: myLib.roomNum,
@@ -120,4 +151,4 @@ window.onload = function(){
             }
         };
     })().init();
-}
+};

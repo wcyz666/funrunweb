@@ -201,6 +201,10 @@ app.get('/new', function(req, res, next){
 });
 
 app.post('/new', function(req, res){
+    if (!onlineUsers[req.cookies.id]) {
+        res.render("login", {state : true});
+        return;
+    }
     var room = utils.getNewRoom(currentRooms);
     onlineUsers[req.cookies.id].currentRoom = room;
     onlineUsers[req.cookies.id].isPlaying = true;
@@ -208,7 +212,9 @@ app.post('/new', function(req, res){
         roomName : req.body.name,
         roomMap: req.body.map,
         players:
-            [onlineUsers[req.cookies.id].username]
+            [onlineUsers[req.cookies.id].username],
+        readyPlayers: [],
+        isPlaying: false
     };
     console.log(currentRooms);
     res.redirect("/room/" + room);
@@ -225,6 +231,10 @@ app.get('/api/roomCount', function(req, res){
 });
 
 app.get('/pick', function(req, res){
+    if (!onlineUsers[req.cookies.id]) {
+        res.render("login", {state : true});
+        return;
+    }
     var key,
         roomList = [],
         roomRandom = 0;
@@ -340,6 +350,24 @@ io.on( 'connection', function( socket ) {
         socket.join(data.room);
         socket.broadcast.to(data.room).emit("exitClient", data.username);
         console.log("exit", data);
+    });
+
+    socket.on("ready", function(data) {
+        var room = currentRooms[data.room];
+
+        socket.join(data.room);
+        if (room.isPlaying)
+            return;
+        if (room.readyPlayers.indexOf(data.username) == -1)
+            room.readyPlayers.push(data.username);
+        if (room.readyPlayers.length == room.players.length) {
+            io.to(data.room).emit('start', {map : room.map});
+            room.isPlaying = true;
+        }
+        else
+            socket.broadcast.to(data.room).emit("newReady", data.username);
+        console.log("ready", data);
+        console.log("ready", currentRooms[data.room].readyPlayers);
     });
 
     socket.on("synclist", function(data){
