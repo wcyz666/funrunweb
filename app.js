@@ -365,7 +365,7 @@ io.on( 'connection', function( socket ) {
         if (room.readyPlayers.indexOf(data.username) == -1)
             room.readyPlayers.push(data.username);
         if (room.readyPlayers.length == room.players.length) {
-            io.to(data.room).emit('start', {map : room.map});
+            io.to(data.room).emit('start', {map : room.map, userNum: room.players.length});
             room.isPlaying = true;
         }
         else
