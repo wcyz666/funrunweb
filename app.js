@@ -139,18 +139,27 @@ app.post('/reg', function(req, res){
     var pwdhash,
         cookie,
         sql = "",
-        inserts = [];
-    if (req.body.username && req.body.password) {
-        pwdhash = md5(req.body.username + req.body.password);
+        inserts = [],
+        username = req.body.username,
+        password = req.body.password;
+
+    if (username && password) {
+        pwdhash = md5(username + password);
         cookie = md5(Math.random() + "");
         sql = "INSERT INTO user VALUES (NULL, ?, ?, ?, 0)";
-        inserts = [req.body.username, pwdhash, cookie];
+        inserts = [username, pwdhash, cookie];
         sql = mysql.format(sql, inserts);
         console.log(sql);
         connection.query(sql, function(err, rows, fields) {
             if (err) throw err;
+            onlineUsers[cookie] = {
+                username : username,
+                score: 0,
+                isPlaying: false,
+                currentRoom : -1
+            };
             res.cookie("id", cookie, {maxAge: 1000 * 86400});
-            res.render("me", {me : onlineUsers[cookie].username});
+            res.render("me", {me : username});
         });
     }
     else {
@@ -214,6 +223,7 @@ app.post('/new', function(req, res){
         players:
             [onlineUsers[req.cookies.id].username],
         readyPlayers: [],
+        arrivedPlayers: [],
         isPlaying: false
     };
     console.log(currentRooms);
@@ -248,7 +258,8 @@ app.get('/pick', function(req, res){
     roomRandom = roomList[roomRandom];
     onlineUsers[req.cookies.id].currentRoom = roomRandom;
     onlineUsers[req.cookies.id].isPlaying = true;
-    currentRooms[roomRandom].players.push(onlineUsers[req.cookies.id].username);
+    if (currentRooms[roomRandom].players.indexOf(onlineUsers[req.cookies.id].username) == -1)
+        currentRooms[roomRandom].players.push(onlineUsers[req.cookies.id].username);
     res.redirect("/room/" + roomRandom);
 });
 
@@ -296,10 +307,12 @@ app.get('/room/exit/:id([0-9]+)', function(req, res){
     var room = req.params.id;
     onlineUsers[req.cookies.id].currentRoom = -1;
     onlineUsers[req.cookies.id].isPlaying = false;
-    currentRooms[room].players.splice( currentRooms[room].players.indexOf(onlineUsers[req.cookies.id].username), 1);
-    if (currentRooms[room].players.length == 0)
-        delete currentRooms[room];
-    console.log(currentRooms);
+    if (currentRooms[room]) {
+        currentRooms[room].players.splice(currentRooms[room].players.indexOf(onlineUsers[req.cookies.id].username), 1);
+        if (currentRooms[room].players.length == 0)
+            delete currentRooms[room];
+        console.log(currentRooms);
+    }
     res.redirect("/me");
 });
 
@@ -350,6 +363,12 @@ io.on( 'connection', function( socket ) {
         console.log("join", data);
     });
 
+    socket.on("jump", function(data) {
+        socket.join(data.room);
+        socket.broadcast.to(data.room).emit("onJump", data);
+        console.log("jump", data);
+    });
+
     socket.on("exit", function(data) {
         socket.join(data.room);
         socket.broadcast.to(data.room).emit("exitClient", data.username);
@@ -372,6 +391,44 @@ io.on( 'connection', function( socket ) {
             socket.broadcast.to(data.room).emit("newReady", data.username);
         console.log("ready", data);
         console.log("ready", currentRooms[data.room].readyPlayers);
+    });
+
+    socket.on("arrived", function(data) {
+        var room = currentRooms[data.room],
+            sql,
+            inserts,
+            i,
+            length;
+
+        socket.join(data.room);
+
+        if (room.arrivedPlayers.indexOf(data.username) == -1)
+            room.arrivedPlayers.push(data.username);
+        if (room.arrivedPlayers.length == room.players.length) {
+            io.to(data.room).emit('gameOver', {
+                map : room.map,
+                userNum: room.players.length,
+                winner: room.arrivedPlayers[0]
+            });
+            sql = "UPDATE user SET score = score + 20 WHERE username = ?";
+            inserts = [room.arrivedPlayers[0]];
+            sql = mysql.format(sql, inserts);
+            
+            connection.query(sql, function(){
+            });
+            for (i = 1; i < length; i++) {
+                sql = "UPDATE user SET score = score - 20 WHERE username = ?";
+                inserts = [room.arrivedPlayers[i]];
+                sql = mysql.format(sql, inserts);
+                connection.query(sql, function(){
+                });
+            }
+            room.isPlaying = false;
+        }
+        else
+            socket.broadcast.to(data.room).emit("newArrived", data.username);
+        console.log("ready", data);
+        console.log("ready", currentRooms[data.room].arrivedPlayers);
     });
 
     socket.on("synclist", function(data){
