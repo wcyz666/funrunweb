@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f3c01106-6163-487d-9397-085f007812cc" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/public/assets/1.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/public/assets/2.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/public/assets/3.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/public/assets/4.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/public/assets/5.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/javascripts/funrun.js" afterPath="$PROJECT_DIR$/public/javascripts/funrun.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/game.handlebars" afterPath="$PROJECT_DIR$/views/game.handlebars" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/scores.handlebars" afterPath="$PROJECT_DIR$/views/scores.handlebars" />
     </list>
     <ignored path="funrunweb.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -33,21 +27,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="2.3085399" vertical-offset="7180" max-vertical-offset="8455">
-              <caret line="422" column="29" selection-start-line="422" selection-start-column="29" selection-end-line="422" selection-end-column="29" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="8092" max-vertical-offset="8455">
+              <caret line="391" column="26" selection-start-line="391" selection-start-column="26" selection-end-line="391" selection-end-column="26" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="me.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="me.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/public/javascripts/me.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1368" max-vertical-offset="1900">
-              <caret line="46" column="39" selection-start-line="46" selection-start-column="39" selection-end-line="46" selection-end-column="39" />
+            <state vertical-scroll-proportion="0.8590425" vertical-offset="1140" max-vertical-offset="1900">
+              <caret line="77" column="20" selection-start-line="77" selection-start-column="20" selection-end-line="77" selection-end-column="20" />
               <folding />
             </state>
           </provider>
@@ -56,8 +50,8 @@
       <file leaf-file-name="game.handlebars" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/views/game.handlebars">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-54.035713" vertical-offset="463" max-vertical-offset="2280">
-              <caret line="104" column="50" selection-start-line="104" selection-start-column="50" selection-end-line="104" selection-end-column="50" />
+            <state vertical-scroll-proportion="-2.107143" vertical-offset="435" max-vertical-offset="2261">
+              <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="36" selection-end-column="40" />
               <folding />
             </state>
           </provider>
@@ -66,8 +60,8 @@
       <file leaf-file-name="scores.handlebars" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/views/scores.handlebars">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.0" vertical-offset="0" max-vertical-offset="1444">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state vertical-scroll-proportion="-4.75" vertical-offset="342" max-vertical-offset="1539">
+              <caret line="25" column="52" selection-start-line="25" selection-start-column="52" selection-end-line="25" selection-end-column="52" />
               <folding />
             </state>
           </provider>
@@ -101,14 +95,14 @@
         <option value="$PROJECT_DIR$/public/reg.html" />
         <option value="$PROJECT_DIR$/views/login.handlebars" />
         <option value="$PROJECT_DIR$/public/javascripts/score.js" />
-        <option value="$PROJECT_DIR$/views/scores.handlebars" />
         <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/public/javascripts/me.js" />
         <option value="$PROJECT_DIR$/views/me.handlebars" />
         <option value="$PROJECT_DIR$/public/javascripts/game.js" />
-        <option value="$PROJECT_DIR$/views/game.handlebars" />
         <option value="$PROJECT_DIR$/public/javascripts/funrun.js" />
         <option value="$PROJECT_DIR$/app.js" />
+        <option value="$PROJECT_DIR$/views/game.handlebars" />
+        <option value="$PROJECT_DIR$/views/scores.handlebars" />
+        <option value="$PROJECT_DIR$/public/javascripts/me.js" />
       </list>
     </option>
   </component>
@@ -738,22 +732,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/javascripts/me.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="770" max-vertical-offset="1900">
-          <caret line="46" column="39" selection-start-line="46" selection-start-column="39" selection-end-line="46" selection-end-column="39" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/views/game.handlebars">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-54.035713" vertical-offset="463" max-vertical-offset="2280">
-          <caret line="104" column="50" selection-start-line="104" selection-start-column="50" selection-end-line="104" selection-end-column="50" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/public/javascripts/funrun.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="155.46666" vertical-offset="12378" max-vertical-offset="14364">
@@ -762,18 +740,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/views/scores.handlebars">
+    <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.0" vertical-offset="0" max-vertical-offset="1444">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="8092" max-vertical-offset="8455">
+          <caret line="391" column="26" selection-start-line="391" selection-start-column="26" selection-end-line="391" selection-end-column="26" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app.js">
+    <entry file="file://$PROJECT_DIR$/views/game.handlebars">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.3085399" vertical-offset="7180" max-vertical-offset="8455">
-          <caret line="422" column="29" selection-start-line="422" selection-start-column="29" selection-end-line="422" selection-end-column="29" />
+        <state vertical-scroll-proportion="-2.107143" vertical-offset="435" max-vertical-offset="2261">
+          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="36" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/views/scores.handlebars">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-4.75" vertical-offset="342" max-vertical-offset="1539">
+          <caret line="25" column="52" selection-start-line="25" selection-start-column="52" selection-end-line="25" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/javascripts/me.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8590425" vertical-offset="1140" max-vertical-offset="1900">
+          <caret line="77" column="20" selection-start-line="77" selection-start-column="20" selection-end-line="77" selection-end-column="20" />
           <folding />
         </state>
       </provider>
