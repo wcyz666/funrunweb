@@ -29,7 +29,7 @@ var connection = mysql.createConnection({
 
 
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '172.27.35.1';
 var currentRooms = {};
 var onlineUsers = {};
 
@@ -171,7 +171,8 @@ app.get('/me', function(req, res) {
     console.log(onlineUsers);
     if (!onlineUsers[req.cookies.id])
         res.redirect("/");
-    res.render("me", {me : onlineUsers[req.cookies.id].username});
+    else
+        res.render("me", {me : onlineUsers[req.cookies.id].username});
 });
 
 app.get('/me/score', function(req, res) {
@@ -431,10 +432,11 @@ io.on( 'connection', function( socket ) {
         console.log("ready", currentRooms[data.room].arrivedPlayers);
     });
 
-    socket.on("synclist", function(data){
-        roomList[data.room] = data.playlist;
-        socket.broadcast.to(data.room).emit("synclist", data.playlist);
+    socket.on("posSync", function(data){
+        socket.join(data.room);
+        socket.broadcast.to(data.room).emit("synclist", data.pos);
         console.log("aynclist", data);
     });
+
 
 } );

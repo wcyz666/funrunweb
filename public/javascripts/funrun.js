@@ -1,18 +1,22 @@
 
 window.onload = function(){
 
-    var socket;
-    var gameover = false;
+    var socket,
+        gameover = false,
+        posSync;
+
     var gameOverCallback = function () {
         socket.emit('arrived', {
             room: myLib.roomNum,
             username: myLib.username
         });
+        clearInterval(posSync);
     };
 
     var gameObj = (function (){
-        var playerCount=0;
+        var playerCount = 0;
         var player = [];
+        var playerArray;
         player[1] = new Phaser.Signal();
         player[2] = new Phaser.Signal();
         player[3] = new Phaser.Signal();
@@ -32,9 +36,10 @@ window.onload = function(){
             this.destination= null;
             this.prop=null;
             this.players = [];
+            playerArray = this.players;
             this.playerCount = playerCount;
             //this.nameList = nameList;
-            this.character = ["1","2","3","4","5"];;
+            this.character = ["1","2","3","4","5"];
             this.keys = ['UP','LEFT','RIGHT','ONE','TWO','THREE','FOUR','FIVE','SIX','SEVEN','EIGHT','NINE'];
             this.currentPlayer = 0;
 
@@ -277,7 +282,7 @@ window.onload = function(){
                             var cnt=i;
                             return function(){
                                 save.players[cnt].cursors.up.isDown=true;
-                                setTimeout(function(){save.players[cnt].cursors.up.isDown=false;}, 500);
+                                setTimeout(function(){save.players[cnt].cursors.up.isDown=false;}, 200);
                             }
                         }(),this);
                         this.players[i].cursors.left = this.input.keyboard.addKey(Phaser.Keyboard[this.keys[i*3+1]]);
@@ -480,7 +485,7 @@ window.onload = function(){
             this.body.immovable = true;
             group.add(this);
 
-        }
+        };
 
         CloudPlatform = function (game, x, y, key, group) {
 
@@ -544,13 +549,24 @@ window.onload = function(){
         //game.state.add('Game', PhaserGame, true);
         return {
             playerCount: function(num){
-                playerCount=num;
+                playerCount = num;
             },
             keyPress: function(){
                 player[1].dispatch();
             },
             start : function(){
                 game.state.add('Game', PhaserGame, true);
+            },
+            getPosition: function(){
+                return {
+                    x: playerArray[0].player.x,
+                    y: playerArray[0].player.y
+                }
+
+            },
+            setPosition: function(secondPlayer){
+                playerArray[1].player.x=secondPlayer.x;
+                playerArray[1].player.y=secondPlayer.y;
             }
         }
     })();
@@ -649,6 +665,7 @@ window.onload = function(){
                     username: myLib.username
                 });
             }
+            event.stopPropagation();
         });
 
         socket.on("onJump", function(data){
@@ -689,6 +706,17 @@ window.onload = function(){
                     $('#myModal').modal("hide");
                     $("#readyButton").button('reset');
                     gameObj.start();
+                    posSync = setInterval(function(){
+                        socket.emit("posSync", {
+                            room: myLib.roomNum,
+                            pos: gameObj.getPosition(),
+                            userName: myLib.username
+                        });
+                        console.log({
+                            room: myLib.roomNum,
+                            pos: gameObj.getPosition()
+                        });
+                    }, 250 + Math.random() * 300);
                 }
                 else {
                     result--;
@@ -729,6 +757,10 @@ window.onload = function(){
                 hideAfter: 10,
                 hideOnNavigate: true
             });
+        });
+
+        socket.on("posSync", function(data) {
+            gameObj.setPosition(data);
         });
 
         $('#exit').on('click', function(event){

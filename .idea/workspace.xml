@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f3c01106-6163-487d-9397-085f007812cc" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/game.handlebars" afterPath="$PROJECT_DIR$/views/game.handlebars" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/scores.handlebars" afterPath="$PROJECT_DIR$/views/scores.handlebars" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/javascripts/funrun.js" afterPath="$PROJECT_DIR$/public/javascripts/funrun.js" />
     </list>
     <ignored path="funrunweb.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -30,18 +30,18 @@
       <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="8092" max-vertical-offset="8455">
-              <caret line="391" column="26" selection-start-line="391" selection-start-column="26" selection-end-line="391" selection-end-column="26" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="5717" max-vertical-offset="8493">
+              <caret line="406" column="52" selection-start-line="406" selection-start-column="52" selection-end-line="406" selection-end-column="52" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="me.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="me.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/javascripts/me.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.8590425" vertical-offset="1140" max-vertical-offset="1900">
-              <caret line="77" column="20" selection-start-line="77" selection-start-column="20" selection-end-line="77" selection-end-column="20" />
+            <state vertical-scroll-proportion="-3.8333333" vertical-offset="436" max-vertical-offset="1900">
+              <caret line="29" column="27" selection-start-line="29" selection-start-column="24" selection-end-line="29" selection-end-column="27" />
               <folding />
             </state>
           </provider>
@@ -50,8 +50,8 @@
       <file leaf-file-name="game.handlebars" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/views/game.handlebars">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-2.107143" vertical-offset="435" max-vertical-offset="2261">
-              <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="36" selection-end-column="40" />
+            <state vertical-scroll-proportion="-3.4642856" vertical-offset="435" max-vertical-offset="2261">
+              <caret line="28" column="37" selection-start-line="28" selection-start-column="37" selection-end-line="28" selection-end-column="37" />
               <folding />
             </state>
           </provider>
@@ -67,11 +67,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="funrun.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="funrun.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/public/javascripts/funrun.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="155.46666" vertical-offset="12378" max-vertical-offset="14364">
-              <caret line="406" column="24" selection-start-line="406" selection-start-column="24" selection-end-line="406" selection-end-column="24" />
+            <state vertical-scroll-proportion="0.5615616" vertical-offset="13436" max-vertical-offset="14972">
+              <caret line="717" column="27" selection-start-line="717" selection-start-column="27" selection-end-line="717" selection-end-column="27" />
               <folding />
             </state>
           </provider>
@@ -98,11 +98,11 @@
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/views/me.handlebars" />
         <option value="$PROJECT_DIR$/public/javascripts/game.js" />
-        <option value="$PROJECT_DIR$/public/javascripts/funrun.js" />
-        <option value="$PROJECT_DIR$/app.js" />
         <option value="$PROJECT_DIR$/views/game.handlebars" />
         <option value="$PROJECT_DIR$/views/scores.handlebars" />
         <option value="$PROJECT_DIR$/public/javascripts/me.js" />
+        <option value="$PROJECT_DIR$/app.js" />
+        <option value="$PROJECT_DIR$/public/javascripts/funrun.js" />
       </list>
     </option>
   </component>
@@ -377,7 +377,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
@@ -386,7 +386,7 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2510981" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39937106" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.36320755" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.36320755" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
@@ -732,26 +732,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/javascripts/funrun.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="155.46666" vertical-offset="12378" max-vertical-offset="14364">
-          <caret line="406" column="24" selection-start-line="406" selection-start-column="24" selection-end-line="406" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="8092" max-vertical-offset="8455">
-          <caret line="391" column="26" selection-start-line="391" selection-start-column="26" selection-end-line="391" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/views/game.handlebars">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.107143" vertical-offset="435" max-vertical-offset="2261">
-          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="36" selection-end-column="40" />
+        <state vertical-scroll-proportion="-3.4642856" vertical-offset="435" max-vertical-offset="2261">
+          <caret line="28" column="37" selection-start-line="28" selection-start-column="37" selection-end-line="28" selection-end-column="37" />
           <folding />
         </state>
       </provider>
@@ -764,10 +748,26 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="5717" max-vertical-offset="8493">
+          <caret line="406" column="52" selection-start-line="406" selection-start-column="52" selection-end-line="406" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/public/javascripts/me.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8590425" vertical-offset="1140" max-vertical-offset="1900">
-          <caret line="77" column="20" selection-start-line="77" selection-start-column="20" selection-end-line="77" selection-end-column="20" />
+        <state vertical-scroll-proportion="-3.8333333" vertical-offset="436" max-vertical-offset="1900">
+          <caret line="29" column="27" selection-start-line="29" selection-start-column="24" selection-end-line="29" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/javascripts/funrun.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5615616" vertical-offset="13436" max-vertical-offset="14972">
+          <caret line="717" column="27" selection-start-line="717" selection-start-column="27" selection-end-line="717" selection-end-column="27" />
           <folding />
         </state>
       </provider>
