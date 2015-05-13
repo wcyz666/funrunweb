@@ -434,7 +434,7 @@ io.on( 'connection', function( socket ) {
 
     socket.on("posSync", function(data){
         socket.join(data.room);
-        socket.broadcast.to(data.room).emit("synclist", data.pos);
+        socket.broadcast.to(data.room).emit("posSync", data.pos);
         console.log("aynclist", data);
     });
 

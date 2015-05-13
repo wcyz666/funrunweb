@@ -17,6 +17,8 @@ window.onload = function(){
         var playerCount = 0;
         var player = [];
         var playerArray;
+        var updateplayer={};
+        var sync=false;
         player[1] = new Phaser.Signal();
         player[2] = new Phaser.Signal();
         player[3] = new Phaser.Signal();
@@ -399,6 +401,14 @@ window.onload = function(){
                     this.players[i].player.body.velocity.x = 350;
                     this.players[i].player.animations.play('right');
 
+                    if(sync)  {
+                        playerArray[1].player.x=updateplayer.x;
+                        playerArray[1].player.y=updateplayer.y;
+                        sync=false;
+
+                    }
+
+
                     if(this.players[i].willwin){
                         this.players[i].player.body.velocity.x = 0;
                         if (!gameover) {
@@ -565,8 +575,9 @@ window.onload = function(){
 
             },
             setPosition: function(secondPlayer){
-                playerArray[1].player.x=secondPlayer.x;
-                playerArray[1].player.y=secondPlayer.y;
+                updateplayer.x=secondPlayer.x;
+                updateplayer.y=secondPlayer.y;
+                sync = true;
             }
         }
     })();
@@ -712,11 +723,7 @@ window.onload = function(){
                             pos: gameObj.getPosition(),
                             userName: myLib.username
                         });
-                        console.log({
-                            room: myLib.roomNum,
-                            pos: gameObj.getPosition()
-                        });
-                    }, 250 + Math.random() * 300);
+                    }, 5);
                 }
                 else {
                     result--;
@@ -760,6 +767,7 @@ window.onload = function(){
         });
 
         socket.on("posSync", function(data) {
+            console.log(data);
             gameObj.setPosition(data);
         });
 
