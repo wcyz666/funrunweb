@@ -424,7 +424,8 @@ io.on( 'connection', function( socket ) {
                 connection.query(sql, function(){
                 });
             }
-            room.isPlaying = false;
+            delete room;
+            io.to(data.room).emit('backToMe', {});
         }
         else
             socket.broadcast.to(data.room).emit("newArrived", data.username);

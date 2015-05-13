@@ -275,7 +275,7 @@ window.onload = function(){
                     this.players[i].player.animations.add('left', [4,5,6,7], 16, true);
                     //this.players[i].player.add('turn', [4], 20, true);
                     this.players[i].player.animations.add('right', [8,9,10,11], 10, true);
-
+                    this.players[i].player.body.normalVelocity =350;
                     if (i!=0){
                         this.players[i].cursors.up = {};
                         this.players[i].cursors.up.isDown=false;
@@ -396,9 +396,7 @@ window.onload = function(){
                     //  Do this AFTER the collide check, or we won't have blocked/touching set
                     var standing = this.players[i].player.body.blocked.down || this.players[i].player.body.touching.down || this.players[i].locked||this.players[i].player.body.touching.right||this.players[i].player.body.touching.left;
                     var win ;
-
-
-                    this.players[i].player.body.velocity.x = 350;
+                    this.players[i].player.body.acceleration.x=200;
                     this.players[i].player.animations.play('right');
 
                     if(sync)  {
@@ -408,7 +406,7 @@ window.onload = function(){
 
                     }
 
-
+                    this.players[i].player.body.maxVelocity.x = this.players[i].player.body.normalVelocity;
                     if(this.players[i].willwin){
                         this.players[i].player.body.velocity.x = 0;
                         if (!gameover) {
@@ -431,13 +429,7 @@ window.onload = function(){
                     // else
                     if (this.players[i].cursors.right.isDown)
                     {
-                        this.players[i].player.body.velocity.x = 350;
 
-                        if (this.players[i].facing !== 'right')
-                        {
-                            this.players[i].player.play('right');
-                            this.players[i].facing = 'right';
-                        }
                     }
                     else
                     {
@@ -574,6 +566,11 @@ window.onload = function(){
                 }
 
             },
+            reset: function(){
+                playerArray[0].player.x = 0;
+                playerArray[1].player.x = 0;
+                game.state.restart(true, true);
+            },
             setPosition: function(secondPlayer){
                 updateplayer.x=secondPlayer.x;
                 updateplayer.y=secondPlayer.y;
@@ -653,7 +650,7 @@ window.onload = function(){
     })();
 
     var msg = Messenger();
-
+    var firstPlay = true;
 
     (function (){
 
@@ -692,6 +689,17 @@ window.onload = function(){
             });
         });
 
+        socket.on("backToMe", function(){
+            msg.post({
+                message: "You will be directed to Me page in 5 seconds !",
+                hideAfter: 5,
+                hideOnNavigate: true
+            });
+            setTimeout(function(){
+                window.location.href = "/";
+            }, 5000);
+        });
+
         socket.on("newReady", function(newUser){
             msg.post({
                 message: "User " + newUser + " is ready !",
@@ -716,8 +724,15 @@ window.onload = function(){
                 if (result == 0) {
                     $('#myModal').modal("hide");
                     $("#readyButton").button('reset');
-                    gameObj.start();
-                    posSync = setInterval(function(){
+                    if (firstPlay) {
+                        counter.text(5);
+                        gameObj.start();
+                        firstPlay = false;
+                    }
+                    else {
+                        gameObj.reset();
+                    }
+                    posSync = setInterval(function () {
                         socket.emit("posSync", {
                             room: myLib.roomNum,
                             pos: gameObj.getPosition(),
@@ -731,60 +746,60 @@ window.onload = function(){
                     setTimeout(countDown, 1000);
                 }
             })();
-        });
+    });
 
-        $("#readyButton").on('click', function () {
-            var $btn = $(this).button('loading');
-            msg.post({
-                message: "You are ready !",
-                hideAfter: 10,
-                hideOnNavigate: true
-            });
-            socket.emit("ready", {
-                room: myLib.roomNum,
-                username: myLib.username
-            });
+    $("#readyButton").on('click', function () {
+        var $btn = $(this).button('loading');
+        msg.post({
+            message: "You are ready !",
+            hideAfter: 10,
+            hideOnNavigate: true
         });
-
-        socket.emit("join", {
+        socket.emit("ready", {
             room: myLib.roomNum,
             username: myLib.username
         });
+    });
 
-        socket.on("gameOver", function(data){
-            var scoreSummary;
-            if (myLib.username == data.winner) {
-                scoreSummary = "You have won 20 points!"
-            }
-            else {
-                scoreSummary = "You have lost 20 points!"
-            }
-            msg.post({
-                message: "Game End! The winner is " + data.winner + ", " + scoreSummary,
-                hideAfter: 10,
-                hideOnNavigate: true
-            });
+    socket.emit("join", {
+        room: myLib.roomNum,
+        username: myLib.username
+    });
+
+    socket.on("gameOver", function(data){
+        var scoreSummary;
+        if (myLib.username == data.winner) {
+            scoreSummary = "You have won 20 points!"
+        }
+        else {
+            scoreSummary = "You have lost 20 points!"
+        }
+        msg.post({
+            message: "Game End! The winner is " + data.winner + ", " + scoreSummary,
+            hideAfter: 10,
+            hideOnNavigate: true
         });
+    });
 
-        socket.on("posSync", function(data) {
-            console.log(data);
-            gameObj.setPosition(data);
+    socket.on("posSync", function(data) {
+        console.log(data);
+        gameObj.setPosition(data);
+    });
+
+    $('#exit').on('click', function(event){
+        socket.emit('exit', {
+            room: myLib.roomNum,
+            username: myLib.username
         });
+        return true;
+    });
 
-        $('#exit').on('click', function(event){
-            socket.emit('exit', {
-                room: myLib.roomNum,
-                username: myLib.username
-            });
-            return true;
-        });
-
-        return {
-            init : function () {
-                myLib.createQRcode();
-                myLib.el('exit').setAttribute("href", "/room/exit/" + myLib.roomNum);
-            }
-        };
+    return {
+        init : function () {
+            myLib.createQRcode();
+            myLib.el('exit').setAttribute("href", "/room/exit/" + myLib.roomNum);
+        }
+    };
     })().init();
 };
 
