@@ -29,7 +29,7 @@ var connection = mysql.createConnection({
 
 
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '172.27.35.1';
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '172.30.73.1';
 var currentRooms = {};
 var onlineUsers = {};
 
@@ -261,6 +261,7 @@ app.get('/pick', function(req, res){
     onlineUsers[req.cookies.id].isPlaying = true;
     if (currentRooms[roomRandom].players.indexOf(onlineUsers[req.cookies.id].username) == -1)
         currentRooms[roomRandom].players.push(onlineUsers[req.cookies.id].username);
+    console.log(currentRooms);
     res.redirect("/room/" + roomRandom);
 });
 
@@ -401,11 +402,11 @@ io.on( 'connection', function( socket ) {
             i,
             length;
 
-        socket.join(data.room);
-
+        console.log(data);
         if (room.arrivedPlayers.indexOf(data.username) == -1)
             room.arrivedPlayers.push(data.username);
         if (room.arrivedPlayers.length == room.players.length) {
+
             io.to(data.room).emit('gameOver', {
                 map : room.map,
                 userNum: room.players.length,
@@ -425,7 +426,7 @@ io.on( 'connection', function( socket ) {
                 });
             }
             delete room;
-            socket.emit("backToMe", {});
+            io.to(data.room).emit("backToMe", {});
         }
         else
             socket.broadcast.to(data.room).emit("newArrived", data.username);
@@ -439,5 +440,10 @@ io.on( 'connection', function( socket ) {
         console.log("aynclist", data);
     });
 
+    socket.on("prop", function (data) {
+        socket.join(data.room);
+        socket.broadcast.to(data.room).emit("prop", data);
+        console.log("prop", data);
+    })
 
 } );

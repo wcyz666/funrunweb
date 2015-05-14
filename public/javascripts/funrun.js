@@ -6,9 +6,15 @@ window.onload = function(){
         posSync;
 
     var gameOverCallback = function () {
+        console.log("arrived");
         socket.emit('arrived', {
             room: myLib.roomNum,
             username: myLib.username
+        });
+        msg.post({
+            message: "You have arrived the goal !",
+            hideAfter: 5,
+            hideOnNavigate: true
         });
         clearInterval(posSync);
     };
@@ -18,6 +24,8 @@ window.onload = function(){
         var player = [];
         var playerArray;
         var updateplayer={};
+        var prop=1;
+        var property;
         var sync=false;
         var map;
         player[1] = new Phaser.Signal();
@@ -118,9 +126,13 @@ window.onload = function(){
                 this.trees = this.add.tileSprite(0, 364, 640, 116, 'trees');
                 this.trees.fixedToCamera = true;
 
+                var propertytext=game.add.text(10,10, 'property:', { fontSize: '32px', fill: '#000' });
+                propertytext.fixedToCamera=true;
+                propertytext.cameraOffset.x=10;
+                propertytext.cameraOffset.x=10;
+                property = propertytext;
 
-
-                if (map==0){
+                if (map == 0){
                     this.barriers = this.add.physicsGroup();
                     this.stationary = this.add.physicsGroup();
                     this.destination = this.add.physicsGroup();
@@ -252,10 +264,10 @@ window.onload = function(){
                     prop3.body.allowGravity = false;
                     prop3.scale.setTo(1, 1);
 
-                    var prop3 = this.prop.create(6700, game.world.height - 500, 'prop');
-                    prop3.body.immovable = true;
-                    prop3.body.allowGravity = false;
-                    prop3.scale.setTo(1, 1);
+                    var prop4 = this.prop.create(6700, game.world.height - 500, 'prop');
+                    prop4.body.immovable = true;
+                    prop4.body.allowGravity = false;
+                    prop4.scale.setTo(1, 1);
                     //destination
 
 
@@ -377,6 +389,22 @@ window.onload = function(){
                     prop1.body.immovable = true;
                     prop1.body.allowGravity = false;
                     prop1.scale.setTo(1, 1);
+
+                    var prop2 = this.prop.create(2150, game.world.height - 350, 'prop');
+                    prop2.body.immovable = true;
+                    prop2.body.allowGravity = false;
+                    prop2.scale.setTo(1, 1);
+
+                    var prop3 = this.prop.create(2500, game.world.height - 650, 'prop');
+                    prop3.body.immovable = true;
+                    prop3.body.allowGravity = false;
+                    prop3.scale.setTo(1, 1);
+
+                    var prop4 = this.prop.create(4300, game.world.height - 750, 'prop');
+                    prop4.body.immovable = true;
+                    prop4.body.allowGravity = false;
+                    prop4.scale.setTo(1, 1);
+
 
 
                     //destination
@@ -516,7 +544,20 @@ window.onload = function(){
             win: function(){
                 this.willwin = true;
             },
-
+            killprop: function(player, obj){
+                obj.kill();
+                prop=Math.floor(Math.random()*3) + 1;
+                console.log(prop);
+                if(prop==1){
+                    property.text='property:speed up';
+                }else if(prop==2){
+                    property.text='property:freeze';
+                }else if(prop==3){
+                    property.text='property:magnet';
+                }else{
+                    property.text='property:';
+                }
+            },
             preRender: function () {
 
                 if (this.game.paused)
@@ -572,6 +613,7 @@ window.onload = function(){
                     this.physics.arcade.collide(this.players[i].player, this.barriers);
                     this.physics.arcade.collide(this.players[i].player, this.clouds, this.customSep, null, this.players[i]);
                     this.physics.arcade.collide(this.players[i].player, this.destination, this.win, null, this.players[i]);
+                    this.physics.arcade.collide(this.players[0].player, this.prop, this.killprop, null, this.players[i]);
 
                     //  Do this AFTER the collide check, or we won't have blocked/touching set
                     var standing = this.players[i].player.body.blocked.down || this.players[i].player.body.touching.down || this.players[i].locked||this.players[i].player.body.touching.right||this.players[i].player.body.touching.left;
@@ -742,6 +784,82 @@ window.onload = function(){
             mapSelect: function(num){
                 map = num;
             },
+            getPropNum : function() {
+                return prop;
+            },
+            prop:function(){
+                if(prop==1){
+                    playerArray[0].player.body.normalVelocity=550;
+                    playerArray[0].player.body.velocity.x=550;
+                    property.text='property:';
+                    setTimeout(function(){
+                        playerArray[0].player.body.normalVelocity=350;
+                        playerArray[0].player.body.velocity.x=350;
+                    },3000)
+                }else if(prop==2&&playerArray[1]){
+                    playerArray[1].player.body.normalVelocity=0;
+                    property.text='property:';
+                    setTimeout(function(){
+                        playerArray[1].player.body.normalVelocity=350;
+                    },2000)
+                }else if(prop==3&&playerArray[1]){
+                    property.text='property:';
+                    if(playerArray[0].x>playerArray[1].x){
+                        playerArray[1].player.body.normalVelocity=550;
+                        playerArray[1].player.body.velocity.x=550;
+                        setTimeout(function(){
+                            playerArray[1].player.body.velocity.x=350;
+                            playerArray[1].player.body.normalVelocity=350;
+                        },1500)
+                    }else {
+                        playerArray[1].player.body.velocity.x=-250;
+                        playerArray[0].player.body.velocity.x=550;
+                        playerArray[1].player.body.normalVelocity=-250;
+                        playerArray[0].player.body.normalVelocity=550;
+                        setTimeout(function(){
+                            playerArray[0].player.body.velocity.x=350;
+                            playerArray[1].player.body.velocity.x=350;
+                            playerArray[1].player.body.normalVelocity=350;
+                            playerArray[0].player.body.normalVelocity=350;
+                        },800)
+                    }
+                }
+
+            },
+            setProp: function(num){
+                if(num==1){
+                    playerArray[1].player.body.normalVelocity=550;
+                    setTimeout(function(){
+                        playerArray[1].player.body.normalVelocity=350;
+                    },3000)
+                }else if(num==2){
+                    playerArray[0].player.body.normalVelocity=0;
+                    setTimeout(function(){
+                        playerArray[0].player.body.normalVelocity=350;
+                    },2000)
+                }else if(num==3){
+                    if(playerArray[0].x>playerArray[1].x){
+                        playerArray[1].player.body.normalVelocity=550;
+                        playerArray[1].player.body.velocity.x=550;
+                        playerArray[0].player.body.normalVelocity=-250;
+                        playerArray[0].player.body.velocity.x=-250;
+                        setTimeout(function(){
+                            playerArray[0].player.body.velocity.x=350;
+                            playerArray[1].player.body.velocity.x=350;
+                            playerArray[1].player.body.normalVelocity=350;
+                            playerArray[0].player.body.normalVelocity=350
+                        },800)
+                    }else {
+                        playerArray[0].player.body.normalVelocity=550;
+                        playerArray[0].player.body.velocity.x=550;
+                        setTimeout(function(){
+                            playerArray[0].player.body.velocity.x=350;
+                            playerArray[0].player.body.normalVelocity=350;
+                        },1500)
+                    }
+                }
+            },
+
             getPosition: function(){
                 return {
                     x: playerArray[0].player.x,
@@ -850,13 +968,31 @@ window.onload = function(){
         });
 
         addEventListener('keyup', function(event) {
+            console.log(event.keyCode);
             if (event.keyCode == 38 || event.keyCode == 87) {
                 socket.emit("jump", {
                     room: myLib.roomNum,
                     username: myLib.username
                 });
             }
+            else if (event.keyCode == 39) {
+                console.log({
+                    room: myLib.roomNum,
+                    username: myLib.username,
+                    propNum: gameObj.getPropNum()
+                });
+                socket.emit("prop", {
+                    room: myLib.roomNum,
+                    username: myLib.username,
+                    propNum : gameObj.getPropNum()
+                });
+                gameObj.prop();
+            }
             event.stopPropagation();
+        });
+
+        socket.on("prop", function(data){
+            gameObj.setProp(data.propNum);
         });
 
         socket.on("onJump", function(data){
@@ -901,7 +1037,6 @@ window.onload = function(){
                 hideOnNavigate: true
             });
             gameObj.playerCount(roomInfo.userNum);
-            console.log($("#mapName").text());
             gameObj.mapSelect(parseInt($("#mapName").text().split(' ')[1]) - 1);
             $('#myModal').modal("show");
             (function countDown() {
@@ -964,7 +1099,6 @@ window.onload = function(){
     });
 
     socket.on("posSync", function(data) {
-        console.log(data);
         gameObj.setPosition(data);
     });
 
