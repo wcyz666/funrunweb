@@ -19,6 +19,7 @@ window.onload = function(){
         var playerArray;
         var updateplayer={};
         var sync=false;
+        var map;
         player[1] = new Phaser.Signal();
         player[2] = new Phaser.Signal();
         player[3] = new Phaser.Signal();
@@ -37,6 +38,7 @@ window.onload = function(){
             this.barriers= null;
             this.destination= null;
             this.prop=null;
+
             this.players = [];
             playerArray = this.players;
             this.playerCount = playerCount;
@@ -89,12 +91,14 @@ window.onload = function(){
                 this.load.image('platform3', '/assets/platform3.png');
                 this.load.image('cloud-platform', '/assets/cloud-platform.png');
                 this.load.image('ground', '/assets/ground.png');
+                this.load.image('game-ground', '/assets/gameground.png');
                 this.load.image('barrier', '/assets/barrier.png');
                 this.load.image('destination', '/assets/destination.png');
                 this.load.image('stone', '/assets/stone.png');
                 this.load.image('road', '/assets/road.png');
                 this.load.image('prop', '/assets/prop.png');
-
+                this.load.image('large-barrier', '/assets/largebarrier.png');
+                this.load.image('finish', '/assets/finish.png');
                 this.load.spritesheet('1', '/assets/1.png', 32, 48);
                 this.load.spritesheet('2', '/assets/2.png', 32, 48);
                 this.load.spritesheet('3', '/assets/3.png', 32, 48);
@@ -106,6 +110,8 @@ window.onload = function(){
 
             create: function () {
 
+                var i;
+
                 this.background = this.add.tileSprite(0, 0, 640, 480, 'background');
                 this.background.fixedToCamera = true;
 
@@ -114,126 +120,301 @@ window.onload = function(){
 
 
 
-                //  Platforms that don't move
-                this.barriers = this.add.physicsGroup();
-                this.stationary = this.add.physicsGroup();
-                this.destination = this.add.physicsGroup();
-                this.prop = this.add.physicsGroup();
+                if (map==0){
+                    this.barriers = this.add.physicsGroup();
+                    this.stationary = this.add.physicsGroup();
+                    this.destination = this.add.physicsGroup();
+                    this.prop = this.add.physicsGroup();
 
-                var ground = this.stationary.create(0, game.world.height - 64, 'ground');
-                ground.body.immovable = true;
-                ground.body.allowGravity = false;
+                    var groundGroup = [];
+                    for (var i = 0; i < 20;i++ ){
+                        groundGroup[i] = this.stationary.create(i*952, game.world.height - 64, 'game-ground');
+                        groundGroup[i].body.immovable = true;
+                        groundGroup[i].body.allowGravity = false;
 
-                //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-                ground.scale.setTo(5, 2);
+                        //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
+                        groundGroup[i].scale.setTo(4, 1);
+                    }
+                    var barrier1 = this.stationary.create(1000, game.world.height - 150, 'barrier');
+                    barrier1.body.immovable = true;
+                    barrier1.body.allowGravity = false;
+                    barrier1.scale.setTo(1, 2);
 
-                var ground1 = this.stationary.create(2125, game.world.height - 64, 'ground');
-                ground1.body.immovable = true;
-                ground1.body.allowGravity = false;
+                    var barrier2 = this.stationary.create(1500, game.world.height - 250, 'barrier');
+                    barrier2.body.immovable = true;
+                    barrier2.body.allowGravity = false;
+                    barrier2.scale.setTo(1,2);
 
-                ground1.scale.setTo(15, 2);
+                    var barrier3 = this.stationary.create(2500, game.world.height - 150, 'barrier');
+                    barrier3.body.immovable = true;
+                    barrier3.body.allowGravity = false;
+                    barrier3.scale.setTo(1, 2);
 
-                var ground3 = this.stationary.create(5200, game.world.height - 64, 'ground');
-                ground3.body.immovable = true;
-                ground3.body.allowGravity = false;
+                    var road1 = this.stationary.create(2800, game.world.height - 190, 'road');
+                    road1.body.immovable = true;
+                    road1.body.allowGravity = false;
+                    road1.scale.setTo(1,1);
 
-                ground3.scale.setTo(21, 2);
-                // here is the start of map
-                var barrier1 = this.stationary.create(1000, game.world.height - 100, 'barrier');
-                barrier1.body.immovable = true;
-                barrier1.body.allowGravity = false;
-                barrier1.scale.setTo(1, 2);
+                    var road2 = this.stationary.create(3150, game.world.height - 280, 'road');
+                    road2.body.immovable = true;
+                    road2.body.allowGravity = false;
+                    road2.scale.setTo(1,1);
 
-                var barrier2 = this.stationary.create(2450/2, game.world.height - 150, 'barrier');
-                barrier2.body.immovable = true;
-                barrier2.body.allowGravity = false;
-                barrier2.scale.setTo(1,2);
+                    var road3 = this.stationary.create(3500, game.world.height - 370, 'road');
+                    road3.body.immovable = true;
+                    road3.body.allowGravity = false;
+                    road3.scale.setTo(1,1);
 
-                var barrier3 = this.stationary.create(2900/2, game.world.height - 200, 'barrier');
-                barrier3.body.immovable = true;
-                barrier3.body.allowGravity = false;
-                barrier3.scale.setTo(1, 2);
+                    var road2 = this.stationary.create(3850, game.world.height - 460, 'road');
+                    road2.body.immovable = true;
+                    road2.body.allowGravity = false;
+                    road2.scale.setTo(1,1);
 
-                var barrier4 = this.stationary.create(3350/2, game.world.height - 250, 'barrier');
-                barrier4.body.immovable = true;
-                barrier4.body.allowGravity = false;
-                barrier4.scale.setTo(1, 2);
+                    var barrier4 = this.stationary.create(3600, game.world.height - 150, 'barrier');
+                    barrier4.body.immovable = true;
+                    barrier4.body.allowGravity = false;
+                    barrier4.scale.setTo(1, 2);
 
-                var barrier5 = this.stationary.create(1900, game.world.height - 300, 'barrier');
-                barrier5.body.immovable = true;
-                barrier5.body.allowGravity = false;
-                barrier5.scale.setTo(1, 3);
+                    var barrier5 = this.stationary.create(3800, game.world.height - 250, 'barrier');
+                    barrier5.body.immovable = true;
+                    barrier5.body.allowGravity = false;
+                    barrier5.scale.setTo(1, 2);
 
-                var barrier5 = this.stationary.create(2200, game.world.height - 580, 'barrier');
-                barrier5.body.immovable = true;
-                barrier5.body.allowGravity = false;
-                barrier5.scale.setTo(3, 3);
+                    var barrier6 = this.stationary.create(4000, game.world.height - 250, 'barrier');
+                    barrier6.body.immovable = true;
+                    barrier6.body.allowGravity = false;
+                    barrier6.scale.setTo(1, 2);
 
-                var barrier6 = this.stationary.create(4800, game.world.height - 680, 'barrier');
-                barrier6.body.immovable = true;
-                barrier6.body.allowGravity = false;
-                barrier6.scale.setTo(3, 6);
+                    var barrier7 = this.stationary.create(4000, game.world.height - 350, 'barrier');
+                    barrier7.body.immovable = true;
+                    barrier7.body.allowGravity = false;
+                    barrier7.scale.setTo(1, 2);
 
-                var barrier6 = this.stationary.create(3200, game.world.height - 350, 'barrier');
-                barrier6.body.immovable = true;
-                barrier6.body.allowGravity = false;
-                barrier6.scale.setTo(1.3, 4);
+                    var barrier8 = this.stationary.create(4220, game.world.height - 250, 'barrier');
+                    barrier8.body.immovable = true;
+                    barrier8.body.allowGravity = false;
+                    barrier8.scale.setTo(1, 2);
 
-                var barrier7 = this.stationary.create(3600, game.world.height - 500, 'barrier');
-                barrier7.body.immovable = true;
-                barrier7.body.allowGravity = false;
-                barrier7.scale.setTo(1.5, 4);
+                    var road3 = this.stationary.create(4620, game.world.height - 300, 'road');
+                    road3.body.immovable = true;
+                    road3.body.allowGravity = false;
+                    road3.scale.setTo(1,1);
 
+                    var road4 = this.stationary.create(5000, game.world.height - 400, 'road');
+                    road4.body.immovable = true;
+                    road4.body.allowGravity = false;
+                    road4.scale.setTo(1,1);
 
-                var stone1 = this.stationary.create(2400, game.world.height - 134, 'stone');
-                stone1.body.immovable = true;
-                stone1.body.allowGravity = false;
-                stone1.scale.setTo(1, 1);
+                    var road5 = this.stationary.create(5500, game.world.height - 300, 'road');
+                    road5.body.immovable = true;
+                    road5.body.allowGravity = false;
+                    road5.scale.setTo(1,1);
 
-                var stone2 = this.stationary.create(2600, game.world.height - 194, 'stone');
-                stone2.body.immovable = true;
-                stone2.body.allowGravity = false;
-                stone2.scale.setTo(1, 1);
+                    var barrier9 = this.stationary.create(5850, game.world.height - 250, 'barrier');
+                    barrier9.body.immovable = true;
+                    barrier9.body.allowGravity = false;
+                    barrier9.scale.setTo(1, 2);
 
-                var stone3 = this.stationary.create(2750, game.world.height - 134, 'stone');
-                stone3.body.immovable = true;
-                stone3.body.allowGravity = false;
-                stone3.scale.setTo(2, 1);
-
-                var road1 = this.stationary.create(6100, game.world.height - 300, 'road');
-                road1.body.immovable = true;
-                road1.body.allowGravity = false;
-                road1.scale.setTo(3, 1);
-
-                this.stationary.create(3100, game.world.height - 650, 'platform');
-                this.stationary.create(3550, game.world.height - 700, 'platform');
-                this.stationary.create(4100, game.world.height - 630, 'platform');
-                this.stationary.create(4500, game.world.height - 680, 'platform');
-
-                var prop1 = this.prop.create(6000, game.world.height - 500, 'prop');
-                prop1.body.immovable = true;
-                prop1.body.allowGravity = false;
-                prop1.scale.setTo(1, 1);
-
-
-                //destination
-                var destination = this.destination.create(9000, game.world.height - 64, 'destination');
-                destination.body.immovable = true;
-                destination.body.allowGravity = false;
-                destination.scale.setTo(7, 2);
-
-                //here is the end of map
+                    var barrier9 = this.stationary.create(6350, game.world.height - 250, 'barrier');
+                    barrier9.body.immovable = true;
+                    barrier9.body.allowGravity = false;
+                    barrier9.scale.setTo(1, 2);
 
 
-                //this.stationary.create(0, 580, 'platform');
+                    var barrier10 = this.stationary.create(6750, game.world.height - 950, 'large-barrier');
+                    barrier10.body.immovable = true;
+                    barrier10.body.allowGravity = false;
+                    barrier10.scale.setTo(5, 3);
 
-                this.stationary.setAll('body.allowGravity', false);
-                this.stationary.setAll('body.immovable', true);
+                    var stone = this.stationary.create(7050, game.world.height - 130, 'stone');
+                    stone.body.immovable = true;
+                    stone.body.allowGravity = false;
+                    stone.scale.setTo(3, 1);
 
-                //  Platforms that move
-                this.clouds = this.add.physicsGroup();
-                this.barriers=this.add.physicsGroup();
+                    var barrier11 = this.stationary.create(8500, game.world.height - 700, 'large-barrier');
+                    barrier11.body.immovable = true;
+                    barrier11.body.allowGravity = false;
+                    barrier11.scale.setTo(5, 3);
 
+                    var destination = this.destination.create(9000, game.world.height - 706, 'finish');
+                    destination.body.immovable = true;
+                    destination.body.allowGravity = false;
+                    destination.scale.setTo(1, 1);
+
+                    var prop1 = this.prop.create(1250, game.world.height - 200, 'prop');
+                    prop1.body.immovable = true;
+                    prop1.body.allowGravity = false;
+                    prop1.scale.setTo(1, 1);
+
+
+                    var prop3 = this.prop.create(5600, game.world.height - 330, 'prop');
+                    prop3.body.immovable = true;
+                    prop3.body.allowGravity = false;
+                    prop3.scale.setTo(1, 1);
+
+                    var prop3 = this.prop.create(6700, game.world.height - 500, 'prop');
+                    prop3.body.immovable = true;
+                    prop3.body.allowGravity = false;
+                    prop3.scale.setTo(1, 1);
+                    //destination
+
+
+                    //here is the end of map
+
+
+                    //this.stationary.create(0, 580, 'platform');
+
+                    this.stationary.setAll('body.allowGravity', false);
+                    this.stationary.setAll('body.immovable', true);
+
+                    //  Platforms that move
+                    this.clouds = this.add.physicsGroup();
+                    this.barriers=this.add.physicsGroup();
+                }
+                else if (map==1){
+                    this.barriers = this.add.physicsGroup();
+                    this.stationary = this.add.physicsGroup();
+                    this.destination = this.add.physicsGroup();
+                    this.prop = this.add.physicsGroup();
+
+                    var ground = this.stationary.create(0, game.world.height - 64, 'ground');
+                    ground.body.immovable = true;
+                    ground.body.allowGravity = false;
+
+                    //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
+                    ground.scale.setTo(5, 2);
+
+                    var ground1 = this.stationary.create(2125, game.world.height - 64, 'ground');
+                    ground1.body.immovable = true;
+                    ground1.body.allowGravity = false;
+
+                    ground1.scale.setTo(15, 2);
+
+                    var ground3 = this.stationary.create(5200, game.world.height - 64, 'ground');
+                    ground3.body.immovable = true;
+                    ground3.body.allowGravity = false;
+
+                    ground3.scale.setTo(21, 2);
+                    // here is the start of map
+                    var barrier1 = this.stationary.create(1000, game.world.height - 100, 'barrier');
+                    barrier1.body.immovable = true;
+                    barrier1.body.allowGravity = false;
+                    barrier1.scale.setTo(1, 2);
+
+                    var barrier2 = this.stationary.create(2450/2, game.world.height - 150, 'barrier');
+                    barrier2.body.immovable = true;
+                    barrier2.body.allowGravity = false;
+                    barrier2.scale.setTo(1,2);
+
+                    var barrier3 = this.stationary.create(2900/2, game.world.height - 200, 'barrier');
+                    barrier3.body.immovable = true;
+                    barrier3.body.allowGravity = false;
+                    barrier3.scale.setTo(1, 2);
+
+                    var barrier4 = this.stationary.create(3350/2, game.world.height - 250, 'barrier');
+                    barrier4.body.immovable = true;
+                    barrier4.body.allowGravity = false;
+                    barrier4.scale.setTo(1, 2);
+
+                    var barrier5 = this.stationary.create(1900, game.world.height - 300, 'barrier');
+                    barrier5.body.immovable = true;
+                    barrier5.body.allowGravity = false;
+                    barrier5.scale.setTo(1, 3);
+
+                    var barrier5 = this.stationary.create(2200, game.world.height - 580, 'barrier');
+                    barrier5.body.immovable = true;
+                    barrier5.body.allowGravity = false;
+                    barrier5.scale.setTo(3, 3);
+
+                    var barrier6 = this.stationary.create(4800, game.world.height - 680, 'barrier');
+                    barrier6.body.immovable = true;
+                    barrier6.body.allowGravity = false;
+                    barrier6.scale.setTo(3, 6);
+
+                    var barrier6 = this.stationary.create(3200, game.world.height - 350, 'barrier');
+                    barrier6.body.immovable = true;
+                    barrier6.body.allowGravity = false;
+                    barrier6.scale.setTo(1.3, 4);
+
+                    var barrier7 = this.stationary.create(3600, game.world.height - 500, 'barrier');
+                    barrier7.body.immovable = true;
+                    barrier7.body.allowGravity = false;
+                    barrier7.scale.setTo(1.5, 4);
+
+                    var barrier7 = this.stationary.create(3600, game.world.height - 500, 'barrier');
+                    barrier7.body.immovable = true;
+                    barrier7.body.allowGravity = false;
+                    barrier7.scale.setTo(1.5, 4);
+
+                    var stone1 = this.stationary.create(2400, game.world.height - 134, 'stone');
+                    stone1.body.immovable = true;
+                    stone1.body.allowGravity = false;
+                    stone1.scale.setTo(1, 1);
+
+                    var stone2 = this.stationary.create(2600, game.world.height - 194, 'stone');
+                    stone2.body.immovable = true;
+                    stone2.body.allowGravity = false;
+                    stone2.scale.setTo(1, 1);
+
+                    var stone3 = this.stationary.create(2750, game.world.height - 134, 'stone');
+                    stone3.body.immovable = true;
+                    stone3.body.allowGravity = false;
+                    stone3.scale.setTo(2, 1);
+
+                    var road1 = this.stationary.create(6100, game.world.height - 300, 'road');
+                    road1.body.immovable = false;
+                    road1.body.allowGravity = false;
+                    road1.scale.setTo(3, 1);
+
+
+
+                    this.stationary.create(3100, game.world.height - 650, 'platform');
+                    this.stationary.create(3550, game.world.height - 700, 'platform');
+                    this.stationary.create(4100, game.world.height - 630, 'platform');
+                    this.stationary.create(4500, game.world.height - 680, 'platform');
+
+                    var prop1 = this.prop.create(6000, game.world.height - 500, 'prop');
+                    prop1.body.immovable = true;
+                    prop1.body.allowGravity = false;
+                    prop1.scale.setTo(1, 1);
+
+
+                    //destination
+                    var destination = this.destination.create(9000, game.world.height - 64, 'destination');
+                    destination.body.immovable = true;
+                    destination.body.allowGravity = false;
+                    destination.scale.setTo(7, 2);
+
+                    //here is the end of map
+
+
+                    //this.stationary.create(0, 580, 'platform');
+
+                    this.stationary.setAll('body.allowGravity', false);
+                    this.stationary.setAll('body.immovable', true);
+
+                    //  Platforms that move
+                    this.clouds = this.add.physicsGroup();
+                    this.barriers=this.add.physicsGroup();
+
+
+                    var barrier8 = this.stationary.create(7500, game.world.height - 150, 'barrier');
+                    barrier8.body.immovable = true;
+                    barrier8.body.allowGravity = false;
+                    barrier8.scale.setTo(1, 2);
+
+
+                    var barrier9 = this.stationary.create(7700, game.world.height - 250, 'barrier');
+                    barrier9.body.immovable = true;
+                    barrier9.body.allowGravity = false;
+                    barrier9.scale.setTo(1, 2);
+
+                    var cloud1 = new CloudPlatform(this.game, 8000, 500, 'cloud-platform', this.clouds);
+                    cloud1.addMotionPath([
+                        { x: "+0", xSpeed: 2000, xEase: "Linear", y: "+200", ySpeed: 2000, yEase: "Sine.easeIn" },
+                        { x: "-0", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeOut" }
+                    ]);
+                }
                 /* var cloud1 = new CloudPlatform(this.game, 300, 450, 'cloud-platform', this.clouds);
 
                  cloud1.addMotionPath([
@@ -263,8 +444,7 @@ window.onload = function(){
                  ]);*/
 
                 //  The Player
-
-                for(var i = 0; i < this.playerCount;i++){
+                for(i = 0; i < this.playerCount;i++){
                     this.players[i].player = this.add.sprite(20,game.world.height - 115, this.character[i]);
 
                     this.physics.arcade.enable(this.players[i].player);
@@ -396,7 +576,7 @@ window.onload = function(){
                     //  Do this AFTER the collide check, or we won't have blocked/touching set
                     var standing = this.players[i].player.body.blocked.down || this.players[i].player.body.touching.down || this.players[i].locked||this.players[i].player.body.touching.right||this.players[i].player.body.touching.left;
                     var win ;
-                    this.players[i].player.body.acceleration.x=200;
+                    this.players[i].player.body.acceleration.x = 100;
                     this.players[i].player.animations.play('right');
 
                     if(sync)  {
@@ -559,6 +739,9 @@ window.onload = function(){
             start : function(){
                 game.state.add('Game', PhaserGame, true);
             },
+            mapSelect: function(num){
+                map = num;
+            },
             getPosition: function(){
                 return {
                     x: playerArray[0].player.x,
@@ -696,7 +879,7 @@ window.onload = function(){
                 hideOnNavigate: true
             });
             setTimeout(function(){
-                window.location.href = "/";
+                window.location.href = "/room/exit/" + myLib.roomNum;
             }, 5000);
         });
 
@@ -718,6 +901,8 @@ window.onload = function(){
                 hideOnNavigate: true
             });
             gameObj.playerCount(roomInfo.userNum);
+            console.log($("#mapName").text());
+            gameObj.mapSelect(parseInt($("#mapName").text().split(' ')[1]) - 1);
             $('#myModal').modal("show");
             (function countDown() {
                 var result = parseInt(counter.text());
@@ -729,16 +914,13 @@ window.onload = function(){
                         gameObj.start();
                         firstPlay = false;
                     }
-                    else {
-                        gameObj.reset();
-                    }
                     posSync = setInterval(function () {
                         socket.emit("posSync", {
                             room: myLib.roomNum,
                             pos: gameObj.getPosition(),
                             userName: myLib.username
                         });
-                    }, 5);
+                    }, 10);
                 }
                 else {
                     result--;

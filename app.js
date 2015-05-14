@@ -425,7 +425,7 @@ io.on( 'connection', function( socket ) {
                 });
             }
             delete room;
-            io.to(data.room).emit('backToMe', {});
+            socket.emit("backToMe", {});
         }
         else
             socket.broadcast.to(data.room).emit("newArrived", data.username);
